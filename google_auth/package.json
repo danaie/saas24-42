@@ -1,5 +1,5 @@
 {
-  "name": "microservice08",
+  "name": "google_auth",
   "version": "1.0.0",
   "description": "Google Authentication",
   "main": "server.js",
