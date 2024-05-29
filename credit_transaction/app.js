@@ -4,6 +4,7 @@ const Credit_pub = require("./credit_pub");
 const sequelize = require("./connect_db");
 var initModels = require("./models/init-models");
 const amqp = require("amqplib");
+// sequelize.sync({ force: true });   
 
 const credits_pub = new Credit_pub;
 
