@@ -49,7 +49,7 @@ app.use(express.json());
 app.use(express.urlencoded( {extended: true }));
 
 app.post("/add_credits/:user_id", async(req,res,next) => {
-    const id = req.params.user_id;
+    const id = parseInt(req.params.user_id,10);
     const added_credits = req.body.added_credits;
     const [user, created] = await models.credits.findOrCreate({
         where: { id: id},

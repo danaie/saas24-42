@@ -47,7 +47,7 @@ app.use(express.json());
 app.use(express.urlencoded( {extended: true }));
 
 app.get('/get_credits/:user_id',async (req,res,next) =>{
-    const id = req.params.user_id
+    const id = parseInt(req.params.user_id,10);
     models.credits.findByPk(id)
     .then(credits =>{
         if (credits == null) 
