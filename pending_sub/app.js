@@ -3,9 +3,26 @@ const cors = require("cors");
 const sequelize = require("./connect_db");
 var initModels = require("./models/init-models");
 const amqp = require("amqplib");
-// sequelize.sync({ force: true });   
+const problems = require("./models/problems");
+//sequelize.sync({ force: true });   
 
 var models = initModels(sequelize);
+
+async function demo() {
+    try {
+        const prob = await models.problems.create({
+            user_id: 1, 
+            username: "Max",
+            problem_name: "Works?",
+            script: "print('Bark')" 
+        });
+        console.log(prob);
+    } catch (error) {
+        console.error("Failed to create problem:", error);
+    }
+}
+
+demo();
 
 async function newSub() {
     try {
@@ -37,6 +54,45 @@ async function newSub() {
 }
 
 const app = express();
+
+async function createNewSubmission(submission) {
+    try {
+        // Σύνδεση με RabbitMQ
+        const connection = await amqp.connect("amqp://user:1234@localhost");
+        const channel = await connection.createChannel();
+        const queue = "new_submission"; // Όνομα της ουράς
+
+        // Δημιουργία ουράς αν δεν υπάρχει
+        await channel.assertQueue(queue, { durable: false });
+
+        // Δημιουργία μηνύματος
+        const msg = JSON.stringify(submission);
+
+        // Αποστολή μηνύματος στην ουρά
+        channel.sendToQueue(queue, Buffer.from(msg));
+
+        console.log(" [x] Sent %s", msg);
+
+        // Κλείσιμο καναλιού και σύνδεσης
+        await channel.close();
+        await connection.close();
+    } catch (error) {
+        console.error("Failed to send message:", error);
+    }
+}
+
+// Παράδειγμα χρήσης
+const submission = {
+    user_id: 1,
+    username: "Intefix",
+    problem_name: "pub",
+    script: "print('woof')"
+};
+
+createNewSubmission(submission);
+
+newSub();
+
 
 app.use(cors());
 app.use(express.json());

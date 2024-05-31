@@ -7,6 +7,7 @@ const sequelize = new Sequelize(process.env.DB, process.env.DB_USER, process.env
     host: process.env.DB_HOST,
     port: process.env.DB_PORT
 });
+console.log(process.env.DB_USER)
 
 sequelize.authenticate()
 .then(() => {

@@ -1,11 +1,11 @@
 var DataTypes = require("sequelize").DataTypes;
-var _credits = require("./problems");
+var _problems = require("./problems");
 
 
 function initModels(sequelize) {
-  var credits = _credits(sequelize, DataTypes);
+  var problems = _problems(sequelize, DataTypes);
   return {
-    credits
+    problems
   };
 }
 module.exports = initModels;
