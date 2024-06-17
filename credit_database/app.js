@@ -4,7 +4,7 @@ const amqp = require("amqplib");
 const sequelize = require("./connect_db");
 var initModels = require("./models/init-models");
 var models = initModels(sequelize);
- sequelize.sync({ force: true });   
+//  sequelize.sync({ force: true });   
 
 async function updateCredits() {
     try {
