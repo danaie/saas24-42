@@ -12,7 +12,7 @@ async function newSub() {
     try {
         const connection = await amqp.connect("amqp://user:1234@localhost");
         const channel = await connection.createChannel();
-        const queue = "new_submission"; //new_submission sends msg {user_id:"", username:"", problem_name:"",script:""}
+        const queue = "new_submission"; //new_submission sends msg {user_id:"", username:"", problem_name:"",script:"", problem_id:""}
 
         await channel.assertQueue(queue, { durable: false });
 
@@ -65,11 +65,11 @@ async function changeStatus() {
         console.error("Failed to consume messages:", error);
     }
 }
-async function remouve() {
+async function remove() {
     try {
         const connection = await amqp.connect("amqp://user:1234@localhost");
         const channel = await connection.createChannel();
-        const queue = "remove"; //remove sends msg {problem_id:""}
+        const queue = "remove_pending"; //remove sends msg {problem_id:""}
 
         await channel.assertQueue(queue, { durable: false });
 
@@ -95,74 +95,9 @@ async function remouve() {
 
 const app = express();
 
-// Testing if the new_submission is working: 
-// async function createNewSubmission(submission) {
-//     try {
-//         // Σύνδεση με RabbitMQ
-//         const connection = await amqp.connect("amqp://user:1234@localhost");
-//         const channel = await connection.createChannel();
-//         const queue = "new_submission"; // Όνομα της ουράς
-
-//         // Δημιουργία ουράς αν δεν υπάρχει
-//         await channel.assertQueue(queue, { durable: false });
-
-//         // Δημιουργία μηνύματος
-//         const msg = JSON.stringify(submission);
-
-//         // Αποστολή μηνύματος στην ουρά
-//         channel.sendToQueue(queue, Buffer.from(msg));
-
-//         console.log(" [x] Sent %s", msg);
-
-//         // Κλείσιμο καναλιού και σύνδεσης
-//         await channel.close();
-//         await connection.close();
-//     } catch (error) {
-//         console.error("Failed to send message:", error);
-//     }
-// }
-
-// // Παράδειγμα χρήσης
-// const submission = {
-//     user_id: 1,
-//     username: "test",
-//     problem_id: 1,
-//     problem_name: "test_problem",
-//     script: "print('woof')"
-// };
-
-// createNewSubmission(submission);
-
-// Testing if the changeStatus is working: 
-// async function setRunning(submission) {
-//     try {
-//         // Σύνδεση με RabbitMQ
-//         const connection = await amqp.connect("amqp://user:1234@localhost");
-//         const channel = await connection.createChannel();
-//         const queue = "running_submission"; // Όνομα της ουράς
-
-//         // Δημιουργία ουράς αν δεν υπάρχει
-//         await channel.assertQueue(queue, { durable: false });
-
-//         // Δημιουργία μηνύματος
-//         const msg = JSON.stringify(submission);
-
-//         // Αποστολή μηνύματος στην ουρά
-//         channel.sendToQueue(queue, Buffer.from(msg));
-
-//         console.log(" [x] Sent %s", msg);
-
-//         // Κλείσιμο καναλιού και σύνδεσης
-//         await channel.close();
-//         await connection.close();
-//     } catch (error) {
-//         console.error("Failed to send message:", error);
-//     }
-// }
-// setRunning({problem_id: 1});
-
 newSub();
 changeStatus();
+remove();
 
 app.use(cors());
 app.use(express.json());
