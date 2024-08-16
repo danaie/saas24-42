@@ -4,7 +4,9 @@ const Credit_pub = require("./credit_pub");
 const sequelize = require("./connect_db");
 var initModels = require("./models/init-models");
 const amqp = require("amqplib");
-//sequelize.sync({ force: true });   
+// sequelize.sync({ force: true });
+sequelize.sync(); 
+
 
 const credits_pub = new Credit_pub;
 
@@ -12,7 +14,7 @@ var models = initModels(sequelize);
 
 async function removeCredits() {
     try {
-        const connection = await amqp.connect("amqp://user:1234@localhost");
+        const connection = await amqp.connect(`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_HOST}`);
         const channel = await connection.createChannel();
         const queue = "remove_credit"; //remove_credits sends msg {id:"", credits:""}
 

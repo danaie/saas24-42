@@ -11,8 +11,8 @@ EXPOSE 15672
 # Optional: Add environment variables to configure RabbitMQ settings
 # These can also be set at runtime using the `-e` flag with `docker run`
 # Example: set default user and password
-ENV RABBITMQ_DEFAULT_USER=user
-ENV RABBITMQ_DEFAULT_PASS=1234
+ENV RABBITMQ_USER=user
+ENV RABBITMQ_PASS=1234
 
 # Optional: Copy custom configuration file if you have one
 # COPY rabbitmq.config /etc/rabbitmq/rabbitmq.config

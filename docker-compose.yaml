@@ -1,0 +1,132 @@
+version: '3.8'
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init-databases.sql:/docker-entrypoint-initdb.d/init-multiple-databases.sql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "--silent"]
+      interval: 30s
+      retries: 5
+      start_period: 30s
+
+  # RabbitMQ Service
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq_broker
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port", "--port", "5672"]
+      interval: 30s
+      retries: 5
+      start_period: 30s
+
+
+
+  # Credits database Microservice
+  credits-database:
+    build: ./credit_database
+    container_name: credits-database
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: root
+      DB: Credits_View
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: guest
+      RABBITMQ_PASS: guest
+    depends_on:
+      - mysql
+      - rabbitmq
+    ports:
+      - "8001:8080"
+    networks:
+      - app-network
+
+  # Credits Transaction Microservice
+  credit-transaction:
+    build: ./credit_transaction
+    container_name: credit-transaction
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: root
+      DB: Credits_Transaction
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: guest
+      RABBITMQ_PASS: guest
+    depends_on:
+      - mysql
+      - rabbitmq
+    ports:
+      - "8002:8080"
+    networks:
+      - app-network
+
+# Finished submission Microservice
+  finished-sub:
+    build: ./finished_sub
+    container_name: finished-sub
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: root
+      DB: Finished
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: guest
+      RABBITMQ_PASS: guest
+    depends_on:
+      - mysql
+      - rabbitmq
+    ports:
+      - "8003:8080"
+    networks:
+      - app-network
+
+
+# Pending submission Microservice
+  pending-sub:
+    build: ./pending_sub
+    container_name: pending-sub
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: root
+      DB: Pending_Running
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: guest
+      RABBITMQ_PASS: guest
+    depends_on:
+      - mysql
+      - rabbitmq
+    ports:
+      - "8004:8080"
+    networks:
+      - app-network
+
+
+# Volumes for persistent data storage
+volumes:
+  mysql_data:
+
+# Defining a network to connect all services
+networks:
+  app-network:
+    driver: bridge

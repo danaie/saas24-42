@@ -2,11 +2,15 @@ const express = require("express");
 const cors = require("cors");
 const sequelize = require("./connect_db");
 const amqp = require("amqplib");
-const FinishedProblems = require("./models/finished_problems");
+var initModels = require("./models/init-models");
+
+// sequelize.sync({ force: true });  
+
+var models = initModels(sequelize);
 
 async function finishedSub() {
     try {
-        const connection = await amqp.connect("amqp://user:1234@localhost");
+        const connection = await amqp.connect(`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_HOST}`);
         const channel = await connection.createChannel();
         const queue = "finished_submission";
 
@@ -16,7 +20,7 @@ async function finishedSub() {
             if (msg !== null) {
                 const data = JSON.parse(msg.content.toString());
                 console.log('Received message:', data);
-                const prob = await FinishedProblems.create({
+                const prob = await models.FinishedProblems.create({
                     User_Id: data.user_id,
                     Username: data.username,
                     Problem_Name: data.problem_name,
@@ -48,7 +52,7 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/submission/:id", async (req, res) => {
     const id = req.params.id;
     try {
-        const submission = await FinishedProblems.findOne({ where: { Problem_Id: id } });
+        const submission = await models.FinishedProblems.findOne({ where: { Problem_Id: id } });
         if (submission) {
             res.status(200).json({ submission });
         } else {
@@ -63,7 +67,7 @@ app.get("/submission/:id", async (req, res) => {
 app.delete("/submission/:id", async (req, res) => {
     const id = req.params.id;
     try {
-        const result = await FinishedProblems.destroy({ where: { Problem_Id: id } });
+        const result = await models.FinishedProblems.destroy({ where: { Problem_Id: id } });
         if (result) {
             res.status(200).json({ message: 'Submission deleted successfully' });
         } else {
@@ -75,7 +79,7 @@ app.delete("/submission/:id", async (req, res) => {
 });
 
 app.get("/getall", async (req, res, next) => {
-    FinishedProblems.findAll()
+    models.FinishedProblems.findAll()
     .then(problems => {
         res.status(200).json({ result: problems });
     }).catch(err => {

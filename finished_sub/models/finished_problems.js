@@ -1,7 +1,8 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../connect_db');
 
-const FinishedProblems = sequelize.define('FinishedProblems', {
+module.exports = function (sequelize,DataTypes){
+    return sequelize.define('FinishedProblems', {
     Problem_Id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -27,5 +28,4 @@ const FinishedProblems = sequelize.define('FinishedProblems', {
     tableName: 'FinishedProblems',
     timestamps: false
 });
-
-module.exports = FinishedProblems;
+};

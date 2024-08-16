@@ -4,11 +4,12 @@ const amqp = require("amqplib");
 const sequelize = require("./connect_db");
 var initModels = require("./models/init-models");
 var models = initModels(sequelize);
-//  sequelize.sync({ force: true });   
+//  sequelize.sync({ force: true }); 
+sequelize.sync(); 
 
 async function updateCredits() {
     try {
-        const connection = await amqp.connect("amqp://user:1234@localhost");
+        const connection = await amqp.connect(`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_HOST}`);
         const channel = await connection.createChannel();
         const queue = "update_credit"; //update_credits sends msg {id:"", credits_num:""}
 

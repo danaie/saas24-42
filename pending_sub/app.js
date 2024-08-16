@@ -4,13 +4,15 @@ const sequelize = require("./connect_db");
 var initModels = require("./models/init-models");
 const amqp = require("amqplib");
 const problems = require("./models/problems");
-//sequelize.sync({ force: true });   
+// sequelize.sync({ force: true });
+sequelize.sync(); 
+
 
 var models = initModels(sequelize);
 
 async function newSub() {
     try {
-        const connection = await amqp.connect("amqp://user:1234@localhost");
+        const connection = await amqp.connect(`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_HOST}`);
         const channel = await connection.createChannel();
         const queue = "new_submission"; //new_submission sends msg {user_id:"", username:"", problem_name:"",script:"", problem_id:""}
 
@@ -40,7 +42,7 @@ async function newSub() {
 
 async function changeStatus() {
     try {
-        const connection = await amqp.connect("amqp://user:1234@localhost");
+        const connection = await amqp.connect(`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_HOST}`);
         const channel = await connection.createChannel();
         const queue = "running_submission"; //running_sudmission sends msg {problem_id:""}
 
@@ -67,7 +69,7 @@ async function changeStatus() {
 }
 async function remove() {
     try {
-        const connection = await amqp.connect("amqp://user:1234@localhost");
+        const connection = await amqp.connect(`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_HOST}`);
         const channel = await connection.createChannel();
         const queue = "remove_pending"; //remove sends msg {problem_id:""}
 

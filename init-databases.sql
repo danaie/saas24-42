@@ -1,0 +1,5 @@
+CREATE DATABASE IF NOT EXISTS Credits_Transaction;
+CREATE DATABASE IF NOT EXISTS Credits_View;
+CREATE DATABASE IF NOT EXISTS Pending_Running;
+CREATE DATABASE IF NOT EXISTS Finished;
+-- Add more databases as needed
