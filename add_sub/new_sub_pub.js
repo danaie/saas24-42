@@ -11,7 +11,7 @@ class new_sub_pub { //new_submission sends msg {user_id:"", username:"", problem
 
     async createChannel() {
         try {
-            this.connection = await amqp.connect("amqp://user:1234@localhost"); 
+            this.connection = await amqp.connect(`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_HOST}`); 
             this.channel = await this.connection.createChannel();
         } catch (error) {
             console.error("Failed to create channel:", error);
