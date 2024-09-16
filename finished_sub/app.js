@@ -20,7 +20,7 @@ async function finishedSub() {
             if (msg !== null) {
                 const data = JSON.parse(msg.content.toString());
                 console.log('Received message:', data);
-                const prob = await models.FinishedProblems.create({
+                const prob = await models.finished_problems.create({
                     User_Id: data.user_id,
                     Username: data.username,
                     Problem_Name: data.problem_name,
@@ -52,7 +52,7 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/submission/:id", async (req, res) => {
     const id = req.params.id;
     try {
-        const submission = await models.FinishedProblems.findOne({ where: { Problem_Id: id } });
+        const submission = await models.finished_problems.findOne({ where: { Problem_Id: id } });
         if (submission) {
             res.status(200).json({ submission });
         } else {
@@ -67,7 +67,7 @@ app.get("/submission/:id", async (req, res) => {
 app.delete("/submission/:id", async (req, res) => {
     const id = req.params.id;
     try {
-        const result = await models.FinishedProblems.destroy({ where: { Problem_Id: id } });
+        const result = await models.finished_problems.destroy({ where: { Problem_Id: id } });
         if (result) {
             res.status(200).json({ message: 'Submission deleted successfully' });
         } else {
@@ -79,7 +79,7 @@ app.delete("/submission/:id", async (req, res) => {
 });
 
 app.get("/getall", async (req, res, next) => {
-    models.FinishedProblems.findAll()
+    models.finished_problems.findAll()
     .then(problems => {
         res.status(200).json({ result: problems });
     }).catch(err => {

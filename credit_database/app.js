@@ -53,7 +53,7 @@ app.get('/get_credits/:user_id',async (req,res,next) =>{
     .then(credits =>{
         if (credits == null) 
             res.status(400).json({error:`No user with id ${id}`});
-        else res.status(200).json({result:credits});
+        else res.status(200).json(credits);
     }).catch(err=>{
         res.status(500).json({error:err});
     })
