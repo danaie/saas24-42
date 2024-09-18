@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const locationSchema = new mongoose.Schema({
     Latitude: { type: Number, required: true },
     Longitude: { type: Number, required: true }
-});
+}, {_id : false});
 
 const submissionSchema = new mongoose.Schema({
     _id: { type: String }, 
@@ -14,7 +14,7 @@ const submissionSchema = new mongoose.Schema({
     user_id: { type: Number, required: true },
     username: { type: String, required: true },
     submission_name: { type: String, required: true },
-    timestamp: { type: String, required: true }
+    timestamp: { type: Date, required: true }
 });
 
 module.exports = mongoose.model("submissions", submissionSchema);

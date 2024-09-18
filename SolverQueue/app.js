@@ -1,7 +1,8 @@
 const amqp = require('amqplib/callback_api');
-const consumingQueues = ['NewSubPubSub', 'RemovePendingPubSub', 'RequestNewPubSub'];
-const publishingQueues = ['CreditTransaction', 'RunningPubSub', 'SendNewPubSub'];
+const consumingQueues = ['NewSubPubSub', 'remove', 'RequestNewPubSub'];
+const publishingQueues = ['PendingUpdate', 'RunningPubSub', 'SendNewPubSub'];
 const addQ = require('./messageHandlers/addQ');
+const removeQ = require('./messageHandlers/removeQ')
 
 function connectToRabbitMQ() {
   amqp.connect('amqp://rabbitmq', function (error0, connection) {
@@ -44,16 +45,16 @@ function connectToRabbitMQ() {
       });
 
     //   // Handle RemovePendingPubSub messages
-    //   consumeMessages(consumingQueues[1], (message) => {
-    //     console.log("[RemovePendingPubSub] Received: ", message);
-    //     // Add your custom logic for RemovePendingPubSub messages here
-    //   });
+      consumeMessages(consumingQueues[1], (message) => {
+        console.log("[RemovePendingPubSub] Received: ", message);
+        removeQ(message)
+      });
 
-    //   // Handle RequestNewPubSub messages
-    //   consumeMessages(consumingQueues[2], (message) => {
-    //     console.log("[RequestNewPubSub] Received: ", message);
-    //     // Add your custom logic for RequestNewPubSub messages here
-    //   });
+      // Handle RequestNewPubSub messages
+      consumeMessages(consumingQueues[2], (message) => {
+        console.log("[RequestNewPubSub] Received: ", message);
+        // Add your custom logic for RequestNewPubSub messages here
+      });
     });
   });
 }
