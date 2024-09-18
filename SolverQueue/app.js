@@ -1,8 +1,8 @@
 const amqp = require('amqplib/callback_api');
 const consumingQueues = ['NewSubPubSub', 'remove', 'RequestNewPubSub'];
-const publishingQueues = ['PendingUpdate', 'RunningPubSub', 'SendNewPubSub'];
 const addQ = require('./messageHandlers/addQ');
 const removeQ = require('./messageHandlers/removeQ')
+const requestNew = require('./messageHandlers/requestNew')
 
 function connectToRabbitMQ() {
   amqp.connect('amqp://rabbitmq', function (error0, connection) {
@@ -15,45 +15,59 @@ function connectToRabbitMQ() {
         throw error1;
       }
 
-      // Helper function to consume messages from an exchange
-      function consumeMessages(exchange, handler) {
-        channel.assertExchange(exchange, 'fanout', { durable: false });
+      // NewSubmission Pub Sub
+      channel.assertExchange(consumingQueues[0], 'fanout', { durable: false });
 
-        channel.assertQueue('', { exclusive: true }, function (error2, q) {
-          if (error2) {
-            throw error2;
+      channel.assertQueue('', { exclusive: true }, function (error2, q) {
+        if (error2) {
+          throw error2;
+        }
+
+        console.log(` [*] Waiting for messages from ${consumingQueues[0]}. To exit press CTRL+C`);
+        channel.bindQueue(q.queue, consumingQueues[0], '');
+
+        channel.consume(q.queue, function (msg) {
+          if (msg.content) {
+            const parsedMessage = JSON.parse(msg.content.toString());
+            addQ(parsedMessage);
           }
+        }, { noAck: true });
+      });
+  
+      //===================================================
 
-          console.log(` [*] Waiting for messages from ${exchange}. To exit press CTRL+C`);
-          channel.bindQueue(q.queue, exchange, '');
+      // remove Pub Sub
+      channel.assertExchange(consumingQueues[1], 'fanout', { durable: false });
 
-          // Consume messages from the queue
-          channel.consume(q.queue, function (msg) {
-            if (msg.content) {
-              handler(msg.content.toString());
-            }
-          }, { noAck: true });
-        });
-      }
+      channel.assertQueue('', { exclusive: true }, function (error2, q1) {
+        if (error2) {
+          throw error2;
+        }
 
-      // Setup different handlers for each exchange
-      // Handle NewSubPubSub messages
-      consumeMessages(consumingQueues[0], (message) => {
-        //console.log("[NewSubPubSub] Received: ", message);
-        const parsedMessage = JSON.parse(message);
-        addQ(parsedMessage);
+        console.log(` [*] Waiting for messages from ${consumingQueues[1]}. To exit press CTRL+C`);
+        channel.bindQueue(q1.queue, consumingQueues[1], '');
+
+        channel.consume(q1.queue, function (msg) {
+          if (msg.content) {
+            const parsedMessage = msg.content.toString();
+            removeQ(parsedMessage);
+          }
+        }, { noAck: true });
       });
 
-    //   // Handle RemovePendingPubSub messages
-      consumeMessages(consumingQueues[1], (message) => {
-        console.log("[RemovePendingPubSub] Received: ", message);
-        removeQ(message)
+      //==============================================
+
+      //Request New Pub Sub
+
+      channel.assertQueue(consumingQueues[2], {
+        durable: false
       });
 
-      // Handle RequestNewPubSub messages
-      consumeMessages(consumingQueues[2], (message) => {
-        console.log("[RequestNewPubSub] Received: ", message);
-        // Add your custom logic for RequestNewPubSub messages here
+      channel.consume(consumingQueues[2], function(msg) {
+        const parsedMessage = JSON.parse(msg.content.toString());
+        requestNew(parsedMessage);
+      }, {
+          noAck: true
       });
     });
   });

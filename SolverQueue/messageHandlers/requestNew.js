@@ -16,17 +16,17 @@ async function requestNew() {
           }
 
           //Send oldest to the solver
-          var newNewQueue = 'sendNew';
+          const sendNewQueue = 'sendNew';
       
-          channel.assertQueue(newNewQueue, {
+          channel.assertQueue(sendNewQueue, {
             durable: false
           });
       
-          channel.sendToQueue(newNewQueue, Buffer.from(oldest));
+          channel.sendToQueue(sendNewQueue, Buffer.from(oldest));
           console.log(" [x] Sent %s", oldest);
 
           //Send oldest to the solver
-          var updateStatusQueue = 'running';
+          const updateStatusQueue = 'running';
 
           channel.assertQueue(updateStatusQueue, {
               durable: false
@@ -40,4 +40,4 @@ async function requestNew() {
 }
 
 
-module.exports = addQ
+module.exports = requestNew
