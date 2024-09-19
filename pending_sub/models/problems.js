@@ -1,12 +1,12 @@
+const { timeStamp } = require('console');
 const Sequelize = require('sequelize');
 const zlib = require('zlib'); 
 
 module.exports = function(sequelize, DataTypes) {
   return sequelize.define('problems', {
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING(255),
       primaryKey: true,
-      autoIncrement: true
     },
     user_id: {
         type: DataTypes.INTEGER,
@@ -23,30 +23,34 @@ module.exports = function(sequelize, DataTypes) {
             return this.getDataValue('status') ? 'pending' : 'running';
           }
     },
-    problem_name: {
+    submission_name: {
       type: DataTypes.STRING(255),
       allowNull: false
     },
-    script: {
-        type: DataTypes.TEXT('long'), 
+    locations: {
+        type: DataTypes.JSON, 
         allowNull: false,
-        set(value) {
-            if (value == null) return;
-            const compressed = zlib.deflateSync(value).toString('base64');
-            this.setDataValue('script', compressed);
-        },
-        get() {
-            const compressed = this.getDataValue('script');
-            if (!compressed) return null;
-            const buffer = Buffer.from(compressed, 'base64');
-            const uncompressed = zlib.inflateSync(buffer).toString();
-            return uncompressed;
-        }
+    },
+    num_vehicles: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    depot: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    max_distance: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    timeStamp : {
+      type: DataTypes.DATE,
+      allowNull: false
     }
   }, {
     sequelize,
-    tableName: 'problems',
-    timestamps: true,
+    tableName: 'problemsdepot',
+    timestamps: false,
     indexes: [
       {
         name: "PRIMARY",
