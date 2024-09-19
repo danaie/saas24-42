@@ -1,11 +1,25 @@
 const mongoose = require('mongoose')
 const submissions = require('../dbSchema')
+const amqp = require('amqplib/callback_api');
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 
 async function requestNew() {
     await mongoose.connect('mongodb://solverq_db:27017')
-    const oldest = await submissions.find().sort({timestamp: 1}).limit(1)
-    console.log(oldest)
 
+    let oldest = await submissions.find().sort({timestamp: 1}).limit(1)
+    
+    while(oldest.length==0){
+      console.log("No submissions available, sleeping for 5 seconds...");
+      await sleep(5000);
+      oldest = await submissions.find().sort({timestamp: 1}).limit(1)
+    }
+
+    const old = oldest[0]
+    await submissions.deleteOne({_id: old.id});
     amqp.connect('amqp://rabbitmq', function(error0, connection) {
         if (error0) {
           throw error0;
@@ -21,9 +35,9 @@ async function requestNew() {
           channel.assertQueue(sendNewQueue, {
             durable: false
           });
-      
-          channel.sendToQueue(sendNewQueue, Buffer.from(oldest));
-          console.log(" [x] Sent %s", oldest);
+          
+          channel.sendToQueue(sendNewQueue, Buffer.from(JSON.stringify(old)));
+          console.log(" [x] Sent %s", old);
 
           //Send oldest to the solver
           const updateStatusQueue = 'running';
@@ -32,9 +46,9 @@ async function requestNew() {
               durable: false
           });
         
-          channel.sendToQueue(updateStatusQueue, Buffer.from(oldest._id));
-          console.log(" [x] Sent %s", oldest._id);
-
+          console.log(" [x] Sent %s", old._id);
+          channel.sendToQueue(updateStatusQueue, Buffer.from(old._id));
+          console.log(" [x] Sent %s", old._id);
         });
       });
 }

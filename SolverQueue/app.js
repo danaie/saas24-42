@@ -64,8 +64,7 @@ function connectToRabbitMQ() {
       });
 
       channel.consume(consumingQueues[2], function(msg) {
-        const parsedMessage = JSON.parse(msg.content.toString());
-        requestNew(parsedMessage);
+        requestNew();
       }, {
           noAck: true
       });
