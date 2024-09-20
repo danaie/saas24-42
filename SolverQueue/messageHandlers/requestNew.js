@@ -33,7 +33,7 @@ async function requestNew() {
           const sendNewQueue = 'sendNew';
       
           channel.assertQueue(sendNewQueue, {
-            durable: false
+            durable: true
           });
           
           channel.sendToQueue(sendNewQueue, Buffer.from(JSON.stringify(old)));

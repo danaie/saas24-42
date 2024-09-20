@@ -1,0 +1,124 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"   # RabbitMQ default port for messaging
+      - "15672:15672" # RabbitMQ management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmqctl status || exit 1"]
+      interval: 5s      # Check every 5 seconds
+      timeout: 5s       # Wait 5 seconds for the check to complete
+      retries: 5        # Try 5 times before considering it unhealthy
+      start_period: 5s  # Wait 5 seconds before starting the health check
+
+  newsub:
+    image: newsub
+    depends_on:
+      rabbitmq:
+        condition: service_healthy   # Wait for rabbitmq to be healthy
+    ports:
+      - "3000:3000"   # Expose port 3000 for your microservice
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - queue_db_host = solverq_db
+      - queue_db_port = 27017
+      
+  # pend_run_subs:
+  #   image: pend_run_subs
+  #   depends_on:
+  #     rabbitmq:
+  #       condition: service_healthy   # Wait for rabbitmq to be healthy
+  #   ports:
+  #     - "5000:5000"
+  #   environment:
+  #     - RABBITMQ_HOST=rabbitmq
+  #     - queue_db_host = solverq_db
+  #     - queue_db_port = 27017
+
+  pendrunnew:
+    image: pendrunnew
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: root
+      DB: Pending_Running
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: guest
+      RABBITMQ_PASS: guest
+    depends_on:
+      rabbitmq:
+        condition: service_healthy   # Wait for rabbitmq to be healthy
+    ports:
+      - "5000:8080"
+
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init-databases.sql:/docker-entrypoint-initdb.d/init-multiple-databases.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "--silent"]
+      interval: 30s
+      retries: 5
+      start_period: 30s
+
+      
+  removesub:
+    image: removesub
+    depends_on:
+      rabbitmq:
+        condition: service_healthy   # Wait for rabbitmq to be healthy
+    ports:
+      - "8000:8000"
+      
+  # unlock:
+  #   image: unlock
+  #   depends_on:
+  #     rabbitmq:
+  #       condition: service_healthy   # Wait for rabbitmq to be healthy
+  #   ports:
+  #     - "9000:9000"
+  
+  solverq:
+    image: solverq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy   # Wait for rabbitmq to be healthy
+      
+  solver:
+    image: solver
+    depends_on:
+      rabbitmq:
+        condition: service_healthy   # Wait for rabbitmq to be healthy
+
+  lockedsub:
+    image: lockedsub
+    depends_on:
+      rabbitmq:
+        condition: service_healthy   # Wait for rabbitmq to be healthy
+    ports:
+      - "4000:4000"        
+  
+  solverq_db:
+    image: mongo
+
+  locked_db:
+    image: mongo
+    
+  # running_pending_db:
+  #   image: mongo
+
+volumes:
+  mysql_data:

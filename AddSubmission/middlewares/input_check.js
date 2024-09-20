@@ -35,12 +35,12 @@ const inputCheck = async (req, res, next) => {
             "user_id": user_id
         }
 
-        const response = await axios.post(`http://localhost:1000/editCredits`, data);
-        if(response.status === 200){
-            next();
-        }else{
-            res.status(406).send('Not enough credits')
-        }
+        // const response = await axios.post(`http://localhost:1000/editCredits`, data);
+        // if(response.status === 200){
+             next();
+        // }else{
+        //     res.status(406).send('Not enough credits')
+        // }
         
     }catch (error) {
         console.error('Error while processing the request:', error.message || error);

@@ -1,0 +1,93 @@
+{
+  "Locations": [
+    {
+      "Latitude": 37.99983328183838,
+      "Longitude": 23.74317714798427
+    },
+    {
+      "Latitude": 37.966783510525985,
+      "Longitude": 23.778605533642235
+    },
+    {
+      "Latitude": 37.9990464764814,
+      "Longitude": 23.773251398190194
+    },
+    {
+      "Latitude": 37.974070236340665,
+      "Longitude": 23.737519890565082
+    },
+    {
+      "Latitude": 37.99763705556787,
+      "Longitude": 23.76632669971703
+    },
+    {
+      "Latitude": 37.987158185269436,
+      "Longitude": 23.760040398809927
+    },
+    {
+      "Latitude": 37.96565952612894,
+      "Longitude": 23.78044816563277
+    },
+    {
+      "Latitude": 38.00816194011881,
+      "Longitude": 23.743726736188382
+    },
+    {
+      "Latitude": 37.983474656462256,
+      "Longitude": 23.73256864917707
+    },
+    {
+      "Latitude": 37.96362413346355,
+      "Longitude": 23.77785820154608
+    },
+    {
+      "Latitude": 37.96581060070882,
+      "Longitude": 23.72133687257313
+    },
+    {
+      "Latitude": 37.97624293546459,
+      "Longitude": 23.740238201740137
+    },
+    {
+      "Latitude": 38.00566809733227,
+      "Longitude": 23.728089082692076
+    },
+    {
+      "Latitude": 38.00132387722171,
+      "Longitude": 23.75830400972441
+    },
+    {
+      "Latitude": 37.96320247915091,
+      "Longitude": 23.785174964462342
+    },
+    {
+      "Latitude": 37.965357705819066,
+      "Longitude": 23.74320004992697
+    },
+    {
+      "Latitude": 37.9692186084866,
+      "Longitude": 23.785110852487332
+    },
+    {
+      "Latitude": 37.98271697637991,
+      "Longitude": 23.73542153051244
+    },
+    {
+      "Latitude": 37.97230013076112,
+      "Longitude": 23.788423933330492
+    },
+    {
+      "Latitude": 37.97827880279073,
+      "Longitude": 23.75884558944574
+    }
+  ],
+  "num_vehicles": 50,
+  "depot": 0,
+  "max_distance": 10000000,
+  "user_id": 13,
+  "username": "Manos",
+  "submission_name": "first_sub",
+  "timestamp": "2023-09-20T10:00:00",
+  "answer": "Objective: 1243477\nRoute for vehicle 0:\n 0 ->  12 ->  7 ->  13 ->  2 ->  4 -> 0\nDistance of the route: 8361m\n\nRoute for vehicle 1:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 2:\n 0 ->  8 ->  17 ->  11 ->  3 ->  10 ->  15 ->  19 ->  5 -> 0\nDistance of the route: 12109m\n\nRoute for vehicle 3:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 4:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 5:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 6:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 7:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 8:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 9:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 10:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 11:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 12:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 13:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 14:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 15:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 16:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 17:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 18:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 19:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 20:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 21:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 22:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 23:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 24:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 25:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 26:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 27:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 28:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 29:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 30:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 31:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 32:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 33:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 34:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 35:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 36:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 37:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 38:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 39:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 40:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 41:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 42:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 43:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 44:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 45:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 46:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 47:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 48:\n 0 -> 0\nDistance of the route: 0m\n\nRoute for vehicle 49:\n 0 ->  18 ->  16 ->  14 ->  9 ->  6 ->  1 -> 0\nDistance of the route: 12107m\n\nMaximum of the route distances: 12109m",
+  "execution_time": 0.131
+}
