@@ -26,8 +26,20 @@ const inputCheck = async (req, res, next) => {
             return res.status(400).send('num_vehicles, depot, max_distance and user_id must be numbers');
         }
         console.log(timestamp)
-        if (typeof username !== 'string' || typeof submission_name !== 'string' || typeof timestamp !== 'string') {
-            return res.status(400).send('username, submission_name, timestamp should be strings');
+        if (typeof username !== 'string' || typeof submission_name !== 'string') {
+            return res.status(400).send('username and submission_name should be strings');
+        }
+
+        if (typeof timestamp === 'string') {
+            // Try to convert the string to a Date object
+            const date = new Date(timestamp);
+        
+            // Check if the conversion resulted in a valid Date
+            if (isNaN(date.getTime())) {
+                return res.status(400).send('timestamp should be a valid Date string');
+            }
+        } else {
+            return res.status(400).send('timestamp should be a string representing a Date');
         }
         
         const data = {

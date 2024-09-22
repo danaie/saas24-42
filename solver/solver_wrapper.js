@@ -16,20 +16,19 @@ async function startRabbitMQ() {
     // Ensure queue exists
     const queue_out = 'RequestNewPubSub';
     const mesg_send = 'Send new';
-    const locked_queue = 'lockedPubSub';
-    const unlocked_queue = 'finished_submission';
+    const locked_exchange = 'lockedPubSub';
+    const unlocked_exchange = 'finished_submission';
 
+    channel.assertExchange(locked_exchange, 'fanout', {
+      durable: false
+    });
+
+    channel.assertExchange(unlocked_exchange, 'fanout', {
+      durable: false
+    });
 
     // handle message sending
-    channel.assertQueue(queue_out, {
-      durable: false
-    });
-
-    channel.assertQueue(locked_queue, {
-      durable: false
-    });
-
-    channel.assertQueue(unlocked_queue, {
+    await channel.assertQueue(queue_out, {
       durable: false
     });
 
@@ -57,14 +56,16 @@ async function startRabbitMQ() {
           console.log('Updated message:', messageContent);
     
           if (result.extra_credits === 0) {
-            channel.sendToQueue(unlocked_queue, Buffer.from(JSON.stringify(messageContent)));
             console.log("Sent to finished queue");
+            channel.publish(unlocked_exchange, '', Buffer.from(JSON.stringify(messageContent)));
           } else {
-            channel.sendToQueue(locked_queue, Buffer.from(JSON.stringify(messageContent)));
             console.log("Sent to locked queue");
+            channel.publish(locked_exchange, '', Buffer.from(JSON.stringify(messageContent)));
           }
-    
+          
           channel.ack(msg);
+          channel.sendToQueue(queue_out, Buffer.from(mesg_send));
+          console.log(" [x] Sent %s", mesg_send);
         } catch (error) {
           console.error('Error processing message:', error);
           channel.nack(msg); // Negative ack to requeue the message for later processing

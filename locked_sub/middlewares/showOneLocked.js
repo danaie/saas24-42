@@ -13,7 +13,7 @@ const showOneLocked = async (req, res, next) => {
 
         let locked;
 
-        locked = await submissions.find({ _id : _id }).select('locations num_vehicles depot max_distance submission_name timestamp status unlockPrice user_id username _id');
+        locked = await submissions.find({ _id : _id }).select('locations num_vehicles depot max_distance submission_name timestamp status extra_credits user_id username _id execution_time timestamp_end');
 
         res.status(200).json(locked);
     } catch (error) {

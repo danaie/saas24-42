@@ -1,22 +1,29 @@
 const express = require('express')
 const app = express()
 const amqp = require('amqplib/callback_api');
-const consumingQueues = ['remove', 'lockedPubSub', 'unlockRequest'];
+const consumingQueues = ['remove', 'lockedPubSub'];
 const showLocked = require('./middlewares/showLocked')
 const showOneLocked = require('./middlewares/showOneLocked')
 const removeLocked = require('./messageHandlers/removeLocked')
 const addLocked = require('./messageHandlers/addLocked')
-const unlock = require('./messageHandlers/unlock')
+const unlock = require('./middlewares/unlock')
+const showAllLocked = require('./middlewares/showAlllocked')
 
-
-
-app.get('/locked/:id', [showLocked], (req, res) => {
+app.get('/user_locked/:user_id', [showLocked], (req, res) => {
   res.status(200).send('Request handled by showLocked middleware');
 });
 
-app.get('/locked/:id', [showOneLocked], (req, res) => {
+app.get('/one_locked/:id', [showOneLocked], (req, res) => {
   res.status(200).send('Request handled by showOneLocked middleware');
 });
+
+app.get('/all_locked', [showAllLocked], (req, res) => {
+  res.status(200).send('Request handled by showAllLocked middleware');
+});
+
+app.get('/unlock/:id', [unlock], (req, res) => {
+  res.status(200).send()
+})
 
 
 app.listen(4000, () => console.log(`NewSubmission is listening on port ${4000}!`))
@@ -72,21 +79,7 @@ function connectToRabbitMQ() {
             }
           }, { noAck: true });
         });
-  
-        //==============================================
-  
-        //Request New Pub Sub
-  
-        channel.assertQueue(consumingQueues[2], {
-          durable: false
-        });
-  
-        channel.consume(consumingQueues[2], function(msg) {
-          const parsedMessage = JSON.parse(msg.content.toString());
-          unlock(parsedMessage);
-        }, {
-            noAck: true
-        });
+
       });
     });
   }

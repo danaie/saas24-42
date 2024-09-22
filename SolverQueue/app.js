@@ -63,6 +63,7 @@ function connectToRabbitMQ() {
         durable: false
       });
 
+      console.log(` [*] Waiting for messages from ${consumingQueues[2]}. To exit press CTRL+C`);
       channel.consume(consumingQueues[2], function(msg) {
         requestNew();
       }, {
