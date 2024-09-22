@@ -9,12 +9,15 @@ const addLocked = require('./messageHandlers/addLocked')
 const unlock = require('./messageHandlers/unlock')
 
 
-app.get('/locked/:user_id', [showOneLocked], (req, res) => {
+
+app.get('/locked/:id', [showLocked], (req, res) => {
+  res.status(200).send('Request handled by showLocked middleware');
+});
+
+app.get('/locked/:id', [showOneLocked], (req, res) => {
   res.status(200).send('Request handled by showOneLocked middleware');
 });
 
-
-app.get('/locked/:id', [showOneLocked], (req, res))
 
 app.listen(4000, () => console.log(`NewSubmission is listening on port ${4000}!`))
 

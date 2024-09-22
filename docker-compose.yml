@@ -83,13 +83,13 @@ services:
     ports:
       - "8000:8000"
       
-  # unlock:
-  #   image: unlock
-  #   depends_on:
-  #     rabbitmq:
-  #       condition: service_healthy   # Wait for rabbitmq to be healthy
-  #   ports:
-  #     - "9000:9000"
+  unlock:
+    image: unlock
+    depends_on:
+      rabbitmq:
+        condition: service_healthy   # Wait for rabbitmq to be healthy
+    ports:
+      - "9000:9000"
   
   solverq:
     image: solverq
@@ -119,6 +119,23 @@ services:
     
   # running_pending_db:
   #   image: mongo
+
+
+  # for analytics folder
+  analytics-service:
+      build: .
+      container_name: analytics-service
+      command: ["node", "analytics.js"]
+      depends_on:
+        - mongo
+      environment:
+        - MONGO_URL=mongodb://mongo:27017/analyticsDB
+      ports:
+        - "3080:3080"
+      networks:
+        - app-network
+
+
 
 volumes:
   mysql_data:

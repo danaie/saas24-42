@@ -2,6 +2,7 @@ const amqp = require('amqplib');
 const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+//const finished_problems = require('../finished_sub/models/finished_problems');
 
 // RabbitMQ connection settings
 const queue = 'sendNew'; // Replace with your actual queue name
@@ -15,9 +16,20 @@ async function startRabbitMQ() {
     // Ensure queue exists
     const queue_out = 'RequestNewPubSub';
     const mesg_send = 'Send new';
+    const locked_queue = 'lockedPubSub';
+    const unlocked_queue = 'finished_submission';
+
 
     // handle message sending
     channel.assertQueue(queue_out, {
+      durable: false
+    });
+
+    channel.assertQueue(locked_queue, {
+      durable: false
+    });
+
+    channel.assertQueue(unlocked_queue, {
       durable: false
     });
 
@@ -32,28 +44,34 @@ async function startRabbitMQ() {
     // Start listening for messages
     channel.consume(queue, async (msg) => {
       if (msg !== null) {
-        const messageContent = JSON.parse(msg.content.toString());
-
-        // Call the Python solver
-        const result = await runPythonSolver(messageContent);
-
-
-        channel.sendToQueue(queue_out, Buffer.from(mesg_send));
-        console.log(" [x] Sent %s", mesg_send);
-
-
-        // Add the answer and execution_time to the original JSON
-        messageContent.answer = result.answer;
-        messageContent.execution_time = result.executionTime;
-
-        // Log or send the modified message back to RabbitMQ or elsewhere
-        console.log('Updated message:', messageContent);
-        
-        // Acknowledge message
-        channel.ack(msg);
+        try {
+          const messageContent = JSON.parse(msg.content.toString());
+          
+          const result = await runPythonSolver(messageContent);
+    
+          messageContent.answer = result.answer;
+          messageContent.execution_time = result.executionTime;
+          messageContent.extra_credits = result.extra_credits;
+          messageContent.timestamp_end = result.timestamp_end;
+    
+          console.log('Updated message:', messageContent);
+    
+          if (result.extra_credits === 0) {
+            channel.sendToQueue(unlocked_queue, Buffer.from(JSON.stringify(messageContent)));
+            console.log("Sent to finished queue");
+          } else {
+            channel.sendToQueue(locked_queue, Buffer.from(JSON.stringify(messageContent)));
+            console.log("Sent to locked queue");
+          }
+    
+          channel.ack(msg);
+        } catch (error) {
+          console.error('Error processing message:', error);
+          channel.nack(msg); // Negative ack to requeue the message for later processing
+        }
       }
     });
-
+    
   } catch (err) {
     console.error('Error in RabbitMQ setup:', err);
   }
@@ -79,9 +97,18 @@ async function runPythonSolver(data) {
         reject(`Python script error: ${stderr}`);
       } else {
         const executionTime = (Date.now() - startTime) / 1000; // Convert to seconds
+        let result = Math.floor((executionTime - 60) / 60);
+        const timestampEnd = new Date().toISOString(); // Get the current timestamp in ISO format
+        if (result < 0) {
+            result = 0;
+        }
+        const extra_credits = result*50;
+
         resolve({
           answer: stdout.trim(),
-          executionTime: executionTime
+          executionTime: executionTime,
+          extra_credits: extra_credits,
+          timestamp_end: timestampEnd
         });
         
         // Clean up temporary locations file
