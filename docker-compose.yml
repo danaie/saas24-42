@@ -120,7 +120,48 @@ services:
   # running_pending_db:
   #   image: mongo
 
+   # Credits database Microservice
+  credits-database:
+    build: ./credit_database
+    container_name: credits-database
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: root
+      DB: Credits_View
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: guest
+      RABBITMQ_PASS: guest
+    depends_on:
+      - mysql
+      - rabbitmq
+    ports:
+      - "8001:8080"
+    networks:
+      - app-network
 
+  # Credits Transaction Microservice
+  credit-transaction:
+    build: ./credit_transaction
+    container_name: credit-transaction
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: root
+      DB: Credits_Transaction
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USER: guest
+      RABBITMQ_PASS: guest
+    depends_on:
+      - mysql
+      - rabbitmq
+    ports:
+      - "8002:8080"
+    networks:
+      - app-network
+      
   # for analytics folder
   analytics-service:
       build: .
