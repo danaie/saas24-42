@@ -10,8 +10,14 @@ function getDayDifference(startDate, endDate) {
 }
 
 function getMonthDifference(startDate, endDate) {
-  return (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
-}
+    const startYear = startDate.getFullYear();
+    const endYear = endDate.getFullYear();
+    const startMonth = startDate.getMonth();
+    const endMonth = endDate.getMonth();
+  
+    // Calculate total months difference
+    return (endYear - startYear) * 12 + (endMonth - startMonth) + 1; // +1 to include the current month
+  }
 
 // GET request for analytics for all users
 router.get('/', async (req, res) => {

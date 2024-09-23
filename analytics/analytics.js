@@ -9,8 +9,15 @@ function getDayDifference(startDate, endDate) {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Convert from ms to days
 }
 
+
 function getMonthDifference(startDate, endDate) {
-  return (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
+  const startYear = startDate.getFullYear();
+  const endYear = endDate.getFullYear();
+  const startMonth = startDate.getMonth();
+  const endMonth = endDate.getMonth();
+
+  // Calculate total months difference
+  return (endYear - startYear) * 12 + (endMonth - startMonth) + 1; // +1 to include the current month
 }
 
 // GET request for analytics by user_id
@@ -85,7 +92,6 @@ router.get('/:user_id', async (req, res) => {
 
     const totalDays = getDayDifference(earliestTimestamp, new Date());
     const totalMonths = getMonthDifference(earliestTimestamp, new Date());
-
     const averageRequestsPerDay = totalDays > 0 ? totalRequests / totalDays : 0;
     const averageRequestsPerMonth = totalMonths > 0 ? totalRequests / totalMonths : 0;
 
@@ -105,5 +111,6 @@ router.get('/:user_id', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
 
 module.exports = router;
