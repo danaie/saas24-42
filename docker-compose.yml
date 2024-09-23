@@ -161,7 +161,6 @@ services:
     ports:
       - "8002:8080"
 
->>>>>>> ce9442b48554efba83bf5d840f3e50f39ed68f7d
       
   # for analytics folder
   analytics:
