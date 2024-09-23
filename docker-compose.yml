@@ -41,7 +41,7 @@ services:
   #     - queue_db_port = 27017
 
   pendrunnew:
-    image: pendrunnew
+    build: ./pending_sub
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
@@ -125,7 +125,7 @@ services:
 
    # Credits database Microservice
   credit-database:
-    image: credit_database
+    build: ./credit_database
     container_name: credits-database
     environment:
       DB_HOST: mysql
@@ -144,7 +144,7 @@ services:
 
   # Credits Transaction Microservice
   credit-transaction:
-    image: credit_transaction
+    build: ./credit_transaction
     container_name: credit-transaction
     environment:
       DB_HOST: mysql
