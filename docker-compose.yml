@@ -57,6 +57,23 @@ services:
     ports:
       - "5000:8080"
 
+  finished:
+    build: ./finished_sub
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: root
+      DB: Finished
+      RABBITMQ_HOST: rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy   # Wait for rabbitmq to be healthy
+      mysql:
+        condition: service_healthy   # Wait for mysql to be healthy
+    ports:
+      - "5001:8080"
+
 
   mysql:
     image: mysql:8.0

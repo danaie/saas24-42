@@ -4,7 +4,7 @@ const zlib = require('zlib');
 
 module.exports = function(sequelize, DataTypes) {
   return sequelize.define('problems', {
-    id: {
+    _id: {
       type: DataTypes.STRING(255),
       primaryKey: true,
     },
@@ -43,7 +43,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    timeStamp : {
+    timestamp : {
       type: DataTypes.DATE,
       allowNull: false
     }
@@ -57,7 +57,7 @@ module.exports = function(sequelize, DataTypes) {
         unique: true,
         using: "BTREE",
         fields: [
-          { name: "id" },
+          { name: "_id" },
         ]
       }      
     ]

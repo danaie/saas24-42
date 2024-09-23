@@ -3,15 +3,18 @@ const cors = require("cors");
 const sequelize = require("./connect_db");
 const amqp = require("amqplib");
 var initModels = require("./models/init-models");
+const Analytics_pub = require("./analytics_pub")
 
-// sequelize.sync({ force: true });  
-sequelize.sync(); 
+const analytics_pub = new Analytics_pub;
+
+sequelize.sync({ force: true });  
+// sequelize.sync(); 
 
 var models = initModels(sequelize);
 
 async function finishedSub() {
     try {
-        const connection = await amqp.connect(`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_HOST}`);
+        const connection = await amqp.connect(`amqp://rabbitmq`);
         const channel = await connection.createChannel();
         const queue = "finished_submission";
 
@@ -22,16 +25,23 @@ async function finishedSub() {
                 const data = JSON.parse(msg.content.toString());
                 console.log('Received message:', data);
                 const prob = await models.finished_problems.create({
-                    User_Id: data.user_id,
-                    Username: data.username,
-                    Problem_Name: data.problem_name,
-                    Script: data.script,
-                    Result: data.result,  // Assuming result is a buffer/file
-                    Runtime: data.runtime,
-                    Submission_Time: new Date(),
-                    Result_Time: new Date()
-                });
+                        _id: data._id,
+                        user_id: data.user_id,
+                        username: data.username,
+                        status: "finished",
+                        submission_name: data.submission_name,
+                        locations: data.locations,
+                        num_vehicles: data.num_vehicles,
+                        depot: data.depot,
+                        max_distance: data.max_distance,
+                        timestamp: data.timestamp,
+                        extra_credits: data.extra_credits,
+                        execution_time: data.execution_time,
+                        timestamp_end: data.timestamp_end,
+                        answer: data.answer
+                    });
                 console.log(prob);
+                await analytics_pub.publish_msg(prob);
                 channel.ack(msg);
             }
         }, { noAck: false });
@@ -53,7 +63,7 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/submission/:id", async (req, res) => {
     const id = req.params.id;
     try {
-        const submission = await models.finished_problems.findOne({ where: { Problem_Id: id } });
+        const submission = await models.finished_problems.findByPk(id);
         if (submission) {
             res.status(200).json({ submission });
         } else {
@@ -68,7 +78,7 @@ app.get("/submission/:id", async (req, res) => {
 app.delete("/submission/:id", async (req, res) => {
     const id = req.params.id;
     try {
-        const result = await models.finished_problems.destroy({ where: { Problem_Id: id } });
+        const result = await models.finished_problems.destroy({ where: { _id: id } });
         if (result) {
             res.status(200).json({ message: 'Submission deleted successfully' });
         } else {

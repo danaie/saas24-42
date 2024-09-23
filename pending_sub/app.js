@@ -1,13 +1,15 @@
 const express = require("express");
 const cors = require("cors");
 const sequelize = require("./connect_db");
+const Analytics_pub = require("./analytics_pub")
 var initModels = require("./models/init-models");
 const amqp = require("amqplib");
 const problems = require("./models/problems");
 const http = require("axios");
-// sequelize.sync({ force: true });
-sequelize.sync(); 
+sequelize.sync({ force: true });
+// sequelize.sync(); 
 
+const analytics_pub = new Analytics_pub;
 
 var models = initModels(sequelize);
 
@@ -41,7 +43,7 @@ async function newSub() {
 
                     // Save to the database
                     const prob = await models.problems.create({
-                        id: data._id,
+                        _id: data._id,
                         user_id: data.user_id,
                         username: data.username,
                         status: true,
@@ -50,10 +52,11 @@ async function newSub() {
                         num_vehicles: data.num_vehicles,
                         depot: data.depot,
                         max_distance: data.max_distance,
-                        timeStamp: data.timestamp
+                        timestamp: data.timestamp
                     });
 
                     console.log(prob);
+                    await analytics_pub.publish_msg(prob);
 
                     // Acknowledge message
                     channel.ack(msg);
@@ -136,7 +139,15 @@ async function remove() {
 
                             // Check if the response status is 200
                             if (res.status === 200) {
-                                // If successful, delete the problem
+                                // Create a plain copy of the object without the 'status' field
+                                let { status, ...plainProb } = prob.get({ plain: true });
+
+                                // Add the 'deleted' status to the copy
+                                plainProb.status = "deleted";
+
+                                // Publish the updated copy to analytics
+                                await analytics_pub.publish_msg(plainProb);
+
                                 await prob.destroy();
                                 console.log('Problem deleted successfully');
                             } else {
@@ -220,6 +231,17 @@ app.get("/getall", async (req,res,next)=>{
         res.status(500).json({error:err});
     });
 });
+
+app.get("/get",async (req,res,next) => {
+    models.problems.findAll({
+        where :{user_id : req.body.user_id}
+    })
+    .then(problem => {
+        res.status(200).json({result:problem});
+    }).catch(err => {
+        res.status(500).json({error:err});
+    })
+})
 
 app.use((req, res, next) => {
     res.status(404).json({ error: 'Endpoint not found'})
