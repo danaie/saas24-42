@@ -9,7 +9,7 @@ sequelize.sync();
 
 async function updateCredits() {
     try {
-        const connection = await amqp.connect(`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_HOST}`);
+        const connection = await amqp.connect(`amqp://rabbitmq`);
         const channel = await connection.createChannel();
         const queue = "update_credit"; //update_credits sends msg {id:"", credits_num:""}
 

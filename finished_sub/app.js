@@ -5,6 +5,7 @@ const amqp = require("amqplib");
 var initModels = require("./models/init-models");
 
 // sequelize.sync({ force: true });  
+sequelize.sync(); 
 
 var models = initModels(sequelize);
 

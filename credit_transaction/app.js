@@ -14,7 +14,7 @@ var models = initModels(sequelize);
 
 async function removeCredits() {
     try {
-        const connection = await amqp.connect(`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_HOST}`);
+        const connection = await amqp.connect(`amqp://rabbitmq`);
         const channel = await connection.createChannel();
         const queue = "remove_credit"; //remove_credits sends msg {id:"", credits:""}
 

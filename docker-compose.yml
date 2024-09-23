@@ -49,8 +49,6 @@ services:
       DB_PASS: root
       DB: Pending_Running
       RABBITMQ_HOST: rabbitmq
-      RABBITMQ_USER: guest
-      RABBITMQ_PASS: guest
     depends_on:
       rabbitmq:
         condition: service_healthy   # Wait for rabbitmq to be healthy
@@ -124,8 +122,8 @@ services:
   #   image: mongo
 
    # Credits database Microservice
-  credits-database:
-    build: ./credit_database
+  credit-database:
+    image: credit_database
     container_name: credits-database
     environment:
       DB_HOST: mysql
@@ -134,19 +132,15 @@ services:
       DB_PASS: root
       DB: Credits_View
       RABBITMQ_HOST: rabbitmq
-      RABBITMQ_USER: guest
-      RABBITMQ_PASS: guest
     depends_on:
-      - mysql
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy   # Wait for rabbitmq to be healthy
     ports:
       - "8001:8080"
-    networks:
-      - app-network
 
   # Credits Transaction Microservice
   credit-transaction:
-    build: ./credit_transaction
+    image: credit_transaction
     container_name: credit-transaction
     environment:
       DB_HOST: mysql
@@ -155,15 +149,14 @@ services:
       DB_PASS: root
       DB: Credits_Transaction
       RABBITMQ_HOST: rabbitmq
-      RABBITMQ_USER: guest
-      RABBITMQ_PASS: guest
     depends_on:
-      - mysql
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy   # Wait for rabbitmq to be healthy
+      mysql:
+        condition: service_healthy   # Wait for mysql to be healthy
     ports:
       - "8002:8080"
-    networks:
-      - app-network
+
       
   # for analytics folder
   analytics:
@@ -173,7 +166,6 @@ services:
           condition: service_healthy
       ports:
         - "3080:3080"
-
 
 
 volumes:
