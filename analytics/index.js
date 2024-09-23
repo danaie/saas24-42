@@ -3,6 +3,8 @@ const amqp = require('amqplib');
 const { connectToDB, storeOrUpdateInDB } = require('./db/db'); // Import the db functions
 const express = require('express');
 const analyticsRouter = require('./analytics'); // Import the analytics route
+const admin_analyticsRouter = require('./admin_analytics'); // Import the analytics route
+
 
 const app = express();
 const port = 3080;
@@ -52,6 +54,7 @@ async function startService() {
   // Set up the analytics route
   app.use('/analytics', analyticsRouter);
 
+  app.use('/admin_analytics', admin_analyticsRouter);
   // Handle invalid routes
   app.use((req, res) => {
     res.status(404).json({ message: 'Route not found' });

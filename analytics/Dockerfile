@@ -5,7 +5,7 @@ FROM node:18
 WORKDIR /app
 
 # Step 3: Copy package.json and package-lock.json to install dependencies
-COPY package*.json analytics.js index.js ./
+COPY package*.json analytics.js index.js admin_analytics.js ./
 COPY db ./db
 
 # Step 4: Install the dependencies
