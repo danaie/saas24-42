@@ -3,6 +3,26 @@ const consumingQueues = ['NewSubPubSub', 'remove', 'RequestNewPubSub'];
 const addQ = require('./messageHandlers/addQ');
 const removeQ = require('./messageHandlers/removeQ')
 const requestNew = require('./messageHandlers/requestNew')
+const removeAll = require('./middlewares/removeAll')
+const subsInQueue = require('./middlewares/subsInQueue')
+
+
+const express = require('express')
+const app = express()
+
+
+app.get('/removeall', [removeAll], (req, res) => {
+  res.status(200).send('Queue empty')
+})
+
+app.get('/queuenum', [subsInQueue], (req, res) => {
+  const subs = req.subsInQueue;
+  res.status(200).send(`Submissions in Queue: ${subs}`);
+});
+
+
+
+app.listen(4080, () => console.log(`SolverQueue is listening on port ${4080}!`))
 
 function connectToRabbitMQ() {
   amqp.connect('amqp://rabbitmq', function (error0, connection) {
