@@ -14,20 +14,28 @@ export default function Home() {
 
 
   // Simulate a random user ID for now
-  const userId = Math.floor(Math.random() * 10000);
+  const userId = 100000;
 
+  /*
+  const axiosInstance = axios.create({
+    httpsAgent: new https.Agent({
+      rejectUnauthorized: false,  // Allow self-signed certificates
+    }),
+  });
+*/
   // Fetch current balance from the API when the component mounts
   useEffect(() => {
-    axios.get('http://localhost:8000/credits')
+    axios.get(`http://localhost:8000/api/getCredits/${userId}`)
       .then(response => {
-        setCurrentBalance(response.data.balance); // Assuming the API returns the current balance in "balance" field
+        setCurrentBalance(response.data.credits_num); // Assuming the API returns the current balance in "credits_num" field
         setLoading(false);
       })
       .catch(error => {
         setError('Failed to fetch current balance.');
         setLoading(false);
       });
-  }, []);
+  }, [userId]);
+
 
   // Calculate new balance when credits are updated
   const newBalance = currentBalance + newCredits;
@@ -40,30 +48,36 @@ export default function Home() {
   // Confirm button action to update credits
   const handleConfirm = () => {
     //const updatedBalance = currentBalance + newCredits;
-    const creditUpdate = newCredits; // This could be positive or negative
-    const postData = {
-      amount: creditUpdate,
-      user_id: userId // Simulated for now
-    };
+    if (!isNaN(newCredits) && newCredits > 0 && newCredits <= 1000){
+      const userConfirm = confirm(`Are you sure you want to add ${newCredits} credits`)
+      if(userConfirm){
+        const creditUpdate = newCredits; // This could be positive or negative
+        const postData = {
+          amount: creditUpdate,
+          user_id: userId // Simulated for now
+        };
 
-    axios.post('http://localhost:8000/credits', { balance: updatedBalance })
-    .then(response => {
-        if (response.status === 200) {
-          console.log("Transaction successful:", response.data);
-          setCurrentBalance(newBalance); // Update balance in UI
-          setNewCredits(0); // Reset new credits input
-          setTransactionStatus('Transaction successful.');
-        }
-      })
-      .catch(error => {
-        if (error.response && error.response.status === 406) {
-          console.error("Not enough credits:", error.response.data);
-          setTransactionStatus('Not enough credits.');
-        } else {
-          console.error("Error updating balance:", error);
-          setTransactionStatus('Error processing transaction.');
-        }
-      });
+        axios.post('http://localhost:8000/api/addCredits', postData)
+          .then(response => {
+            if (response.status === 200) {
+              setCurrentBalance(newBalance);
+              setNewCredits(0);
+              setTransactionStatus('Transaction successful.');
+            }
+          })
+          .catch(error => {
+            if (error.response && error.response.status === 406) {
+              console.error("Not enough credits:", error.response.data);
+              setTransactionStatus('Not enough credits.');
+            } else {
+              console.error("Error updating balance:", error);
+              alert("Error upadating credits 2.")
+              setTransactionStatus('Error processing transaction.');
+            }
+          })}}
+          else{
+            alert("Invalid input. You should give as input a number between 0 and 1000")
+          };
   };
 
   // Cancel button action to reset the new credits input
@@ -87,25 +101,16 @@ export default function Home() {
       {/* Main Content Area */}
       <main className="flex-grow p-5">
         {/* Header */}
-        <div className="flex justify-between mb-5">
-          <div className="w-2/3">
-            <div className="bg-gray-300 h-24 flex items-center justify-center">
-              <h1 className="text-3xl font-bold">solveME Logo Area</h1>
-            </div>
-          </div>
-          <div className="flex justify-between w-1/3">
-            <button className="bg-blue-500 text-white py-2 px-4 rounded">BUY CREDITS</button>
-            <div className="ml-4">
-              <p>System Info:</p>
-              <p>Date/Time: {new Date().toLocaleString()}</p>
-              <p>Health: OK</p>
-            </div>
+        <div className="flex justify-center mb-7 ">
+          <div className="ml-4">
+            <p>System Info:</p>
+            <p>Date/Time: {new Date().toLocaleString()}</p>
+            <p>Health: OK</p>
           </div>
         </div>
 
-        {/* Big solveME Photo Area */}
-        <div className="bg-gray-200 h-64 flex items-center justify-center mb-5">
-          <h2 className="text-xl font-semibold">Big solveME Photo</h2>
+        <div className="flex justify-center mb-10 ">
+          <button className="bg-blue-500 text-white py-10 px-10 rounded">BUY CREDITS</button>
         </div>
 
         {/* Credit Info Fields */}
