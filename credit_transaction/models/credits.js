@@ -1,9 +1,8 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
   return sequelize.define('credits', {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
+    user_id: {
+      type: DataTypes.STRING(255),
       primaryKey: true
     },
     credits_num: {
