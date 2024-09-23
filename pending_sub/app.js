@@ -4,7 +4,8 @@ const sequelize = require("./connect_db");
 var initModels = require("./models/init-models");
 const amqp = require("amqplib");
 const problems = require("./models/problems");
-//sequelize.sync({ force: true });
+const http = require("axios");
+// sequelize.sync({ force: true });
 sequelize.sync(); 
 
 
@@ -99,34 +100,65 @@ async function changeStatus() {
 
 async function remove() {
     try {
+        // Connect to RabbitMQ
         const connection = await amqp.connect(`amqp://rabbitmq`);
         const channel = await connection.createChannel();
         const exchange = 'remove';
 
-        // Assert exchange
+        // Assert the exchange
         await channel.assertExchange(exchange, 'fanout', { durable: false });
 
-        // Assert queue
+        // Assert the queue
         const { queue } = await channel.assertQueue('', { exclusive: true });
-
         console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", queue);
 
-        // Bind queue
+        // Bind queue to the exchange
         await channel.bindQueue(queue, exchange, '');
 
+        // Consume messages
         channel.consume(queue, async (msg) => {
             if (msg !== null) {
-                const data = (msg.content.toString());
-                console.log('Received message:', data);
-                const prob = await models.problems.findByPk(data);
-                if (prob === null) {
-                    console.error("Problem not found");//it should never came here
-                } else {
-                    await prob.destroy();
+                try {
+                    const data = msg.content.toString();
+                    console.log('Received message:', data);
+
+                    // Find the problem by primary key (data is the problem ID)
+                    const prob = await models.problems.findByPk(data);
+                    if (prob === null) {
+                        console.error("Problem not found");
+                    } else {
+                        try {
+                            // Make an HTTP POST request to update the credits
+                            const res = await http.post('http://credit-transaction:8080/edit_credits', {
+                                user_id: prob.user_id,
+                                amount: 1
+                            });
+
+                            // Check if the response status is 200
+                            if (res.status === 200) {
+                                // If successful, delete the problem
+                                await prob.destroy();
+                                console.log('Problem deleted successfully');
+                            } else {
+                                // Log non-200 responses
+                                console.log('Failed to edit credits. Response:', res.status, res.data);
+                            }
+                        } catch (httpError) {
+                            // Catch errors in the HTTP request
+                            console.error('Error in HTTP request:', httpError.message || httpError);
+                        }
+                    }
+
+                    // Acknowledge the message after processing
+                    channel.ack(msg);
+                } catch (err) {
+                    console.error('Error processing message:', err);
+                    // Optionally reject the message (without re-queueing)
+                    channel.nack(msg, false, false);
                 }
-                channel.ack(msg);
             }
         }, { noAck: false });
+
         console.log(`Waiting for messages in queue: ${queue}`);
     } catch (error) {
         console.error("Failed to consume messages:", error);

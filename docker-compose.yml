@@ -41,7 +41,7 @@ services:
   #     - queue_db_port = 27017
 
   pendrunnew:
-    image: pendrunnew
+    build: ./pending_sub
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
@@ -49,11 +49,11 @@ services:
       DB_PASS: root
       DB: Pending_Running
       RABBITMQ_HOST: rabbitmq
-      RABBITMQ_USER: guest
-      RABBITMQ_PASS: guest
     depends_on:
       rabbitmq:
         condition: service_healthy   # Wait for rabbitmq to be healthy
+      mysql:
+        condition: service_healthy   # Wait for mysql to be healthy
     ports:
       - "5000:8080"
 
@@ -123,6 +123,7 @@ services:
   # running_pending_db:
   #   image: mongo
 
+<<<<<<< HEAD
   #  # Credits database Microservice
   # credits-database:
   #   build: ./credit_database
@@ -164,6 +165,46 @@ services:
   #     - "8002:8080"
   #   networks:
   #     - app-network
+=======
+   # Credits database Microservice
+  credit-database:
+    build: ./credit_database
+    container_name: credits-database
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: root
+      DB: Credits_View
+      RABBITMQ_HOST: rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy   # Wait for rabbitmq to be healthy
+      mysql:
+        condition: service_healthy   # Wait for mysql to be healthy
+    ports:
+      - "8001:8080"
+
+  # Credits Transaction Microservice
+  credit-transaction:
+    build: ./credit_transaction
+    container_name: credit-transaction
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: root
+      DB: Credits_Transaction
+      RABBITMQ_HOST: rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy   # Wait for rabbitmq to be healthy
+      mysql:
+        condition: service_healthy   # Wait for mysql to be healthy
+    ports:
+      - "8002:8080"
+
+>>>>>>> ce9442b48554efba83bf5d840f3e50f39ed68f7d
       
   # for analytics folder
   analytics:
@@ -173,7 +214,6 @@ services:
           condition: service_healthy
       ports:
         - "3080:3080"
-
 
 
 volumes:

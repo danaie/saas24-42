@@ -55,18 +55,21 @@ export default function Home() {
     const formData = new FormData();
     formData.append('model', selectedModel);
     formData.append('file', uploadedFiles);
-    axios.post('http://localhost:8000', formData, {
-      headers: {
-          'Content-Type': 'multipart/form-data'
-      }
-    })
-    .then(response => {
-      console.log('File uploaded successfully:', response.data);
-    })
-    .catch(error => {
-      console.error('Error uploading file:', error);
-    });
-  }
+
+    // API Gateway endpoint instead of direct local server
+    axios
+      .post('http://localhost:8000/api/submitProblem', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then((response) => {
+        console.log('File uploaded successfully:', response.data);
+      })
+      .catch((error) => {
+        console.error('Error uploading file:', error);
+      });
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -77,10 +80,10 @@ export default function Home() {
       <main className="flex-grow p-5">
         {/* Dropdown for solver models */}
         <div className="flex justify-center mb-5">
-          <label htmlFor="machineModel" className="font-semibold mt-2">Select Solver Model: </label>
+          <label htmlFor="machineModel" className="font-semibold mt-2 text-black">Select Solver Model: </label>
           <select
             id="machineModel"
-            className="ml-3 p-2 border border-gray-400 rounded"
+            className="ml-3 p-2 border border-gray-400 rounded text-black"
             value={selectedModel}
             onChange={(e) => setSelectedModel(e.target.value)}
           >
@@ -96,7 +99,7 @@ export default function Home() {
           {/* Metadata Window */}
           <div className="w-1/2 p-4 border border-gray-300 shadow-lg bg-white h-64 overflow-y-auto">
             <h2 className="text-xl font-semibold mb-3">Metadata</h2>
-            <table className="w-full table-auto">
+            <table className="w-full table-auto text-black">
               <thead>
                 <tr>
                   <th className="text-left">ID</th>
@@ -118,8 +121,8 @@ export default function Home() {
 
           {/* Input Data Window */}
           <div className="w-1/2 p-4 border border-gray-300 shadow-lg bg-white h-64 overflow-y-auto">
-            <h2 className="text-xl font-semibold mb-3">Input Data</h2>
-            <table className="w-full table-auto">
+            <h2 className="text-xl font-semibold mb-3 text-black">Input Data</h2>
+            <table className="w-full table-auto text-black">
               <thead>
                 <tr>
                   <th className="text-left">ID</th>
@@ -147,7 +150,7 @@ export default function Home() {
           onDrop={handleDrop}
           onDragOver={handleDragOver}
         >
-          <p className="text-lg font-semibold">
+          <p className="text-lg font-semibold text-black">
             Drag and Drop Files Here
             <svg className="w-5 inline-block ml-3 cursor-pointer" onClick={plusClick}data-slot="icon" fill="none" strokeWidth="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
