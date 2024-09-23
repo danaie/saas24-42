@@ -8,7 +8,7 @@ class Credit_pub {
 
     async createChannel() {
         try {
-            this.connection = await amqp.connect(`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_HOST}`); // Fixed the typo 'amlqp' to 'amqp'
+            this.connection = await amqp.connect(`amqp://rabbitmq`);
             this.channel = await this.connection.createChannel();
         } catch (error) {
             console.error("Failed to create channel:", error);

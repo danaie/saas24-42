@@ -52,6 +52,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy   # Wait for rabbitmq to be healthy
+      mysql:
+        condition: service_healthy   # Wait for mysql to be healthy
     ports:
       - "5000:8080"
 
@@ -135,6 +137,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy   # Wait for rabbitmq to be healthy
+      mysql:
+        condition: service_healthy   # Wait for mysql to be healthy
     ports:
       - "8001:8080"
 
