@@ -178,7 +178,13 @@ services:
     ports:
       - "8002:8080"
 
+  api-gateway:
+      build: ./api_gateway
+      container_name: api-gateway
+      ports:
+        - "8000:8000"
       
+   
   # for analytics folder
   analytics:
       build: ./analytics
