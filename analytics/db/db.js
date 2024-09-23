@@ -20,7 +20,7 @@ const submissionSchema = new mongoose.Schema({
   submission_name: { type: String, required: true },
   timestamp: { type: String, required: true },
   timestamp_end: { type: String, default: '-1' }, // New field for ending timestamp
-  status: { type: String, required: true, enum: ['pending', 'locked', 'finished'] }, // Status field
+  status: { type: String, required: true, enum: ['pending', 'locked', 'finished','deleted'] }, // Status field
   extra_credits: { type: Number, required: true, default: -1 },
   execution_time: { type: Number, required: true, default: -1 },
 });
