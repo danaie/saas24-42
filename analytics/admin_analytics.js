@@ -39,6 +39,7 @@ router.get('/', async (req, res) => {
         totalRequests = submissions.length,
         lockedCount = 0,
         pendingCount = 0,
+        deletedCount = 0,
         finishedCount = 0;
 
     const dayCounts = {};
@@ -62,6 +63,7 @@ router.get('/', async (req, res) => {
       // Count based on status
       if (submission.status === 'locked') lockedCount++;
       if (submission.status === 'pending') pendingCount++;
+      if (submission.status === 'deleted') deletedCount++;
       if (submission.status === 'finished') finishedCount++;
 
       // Average Requests per Day and Month
@@ -103,6 +105,7 @@ router.get('/', async (req, res) => {
       number_locked: lockedCount,
       number_pending: pendingCount,
       number_finished: finishedCount,
+      number_deleted : deletedCount,
     });
   } catch (error) {
     console.error('Error fetching analytics:', error);
