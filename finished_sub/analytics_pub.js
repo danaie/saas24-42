@@ -22,7 +22,7 @@ class Analytics_pub {
                 await this.createChannel();
             }
             const queue = "analytics_queue";
-            await this.channel.assertQueue(queue, { durable: false });
+            await this.channel.assertQueue(queue, { durable: true });
             this.channel.sendToQueue(queue, Buffer.from(JSON.stringify({
                 id: msg.id,
                 credits_num: msg.credits_num

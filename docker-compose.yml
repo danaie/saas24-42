@@ -17,7 +17,7 @@ services:
       start_period: 5s  # Wait 5 seconds before starting the health check
 
   newsub:
-    image: newsub
+    build: ./AddSubmission
     depends_on:
       rabbitmq:
         condition: service_healthy   # Wait for rabbitmq to be healthy
@@ -93,35 +93,35 @@ services:
 
       
   removesub:
-    image: removesub
+    build: ./deleteSubmissions
     depends_on:
       rabbitmq:
         condition: service_healthy   # Wait for rabbitmq to be healthy
     ports:
       - "8000:8000"
       
-  unlock:
-    image: unlock
-    depends_on:
-      rabbitmq:
-        condition: service_healthy   # Wait for rabbitmq to be healthy
-    ports:
-      - "9000:9000"
+  # unlock:
+  #   build: ./
+  #   depends_on:
+  #     rabbitmq:
+  #       condition: service_healthy   # Wait for rabbitmq to be healthy
+  #   ports:
+  #     - "9000:9000"
   
   solverq:
-    image: solverq
+    build: ./SolverQueue
     depends_on:
       rabbitmq:
         condition: service_healthy   # Wait for rabbitmq to be healthy
       
   solver:
-    image: solver
+    build: ./solver
     depends_on:
       rabbitmq:
         condition: service_healthy   # Wait for rabbitmq to be healthy
 
   lockedsub:
-    image: lockedsub
+    build: ./locked_sub
     depends_on:
       rabbitmq:
         condition: service_healthy   # Wait for rabbitmq to be healthy
@@ -181,7 +181,7 @@ services:
       
   # for analytics folder
   analytics:
-      image: analytics
+      build: ./analytics
       depends_on:
         rabbitmq:
           condition: service_healthy
