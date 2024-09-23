@@ -14,7 +14,7 @@ function getMonthDifference(startDate, endDate) {
 }
 
 // GET request for analytics by user_id
-router.get('/analytics/:user_id', async (req, res) => {
+router.get('/:user_id', async (req, res) => {
   const userId = req.params.user_id;
 
   try {
@@ -69,7 +69,7 @@ router.get('/analytics/:user_id', async (req, res) => {
       monthCounts[monthKey] = (monthCounts[monthKey] || 0) + 1;
 
       // Average Waiting Time
-      if (submission.timestamp_end !== '-1' && submission.execution_time !== -1) {
+      if (submission.timestamp_end !== null && submission.execution_time !== -1) {
         const timestamp = new Date(submission.timestamp);
         const timestampEnd = new Date(submission.timestamp_end);
         const waitingTime = (timestampEnd - timestamp) / 1000 - submission.execution_time; // in seconds

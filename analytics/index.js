@@ -13,7 +13,7 @@ const queue = 'analytics_queue'; // Replace with your actual queue name
 async function startRabbitMQ() {
   try {
     // Connect to RabbitMQ
-    const connection = await amqp.connect('amqp://localhost'); // Replace with your RabbitMQ URL
+    const connection = await amqp.connect('amqp://rabbitmq'); // Replace with your RabbitMQ URL
     const channel = await connection.createChannel();
 
     // Ensure queue exists

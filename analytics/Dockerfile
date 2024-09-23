@@ -5,7 +5,8 @@ FROM node:18
 WORKDIR /app
 
 # Step 3: Copy package.json and package-lock.json to install dependencies
-COPY package*.json ./
+COPY package*.json analytics.js index.js ./
+COPY db ./db
 
 # Step 4: Install the dependencies
 RUN npm install
@@ -15,6 +16,7 @@ RUN npm install
 EXPOSE 3080 
 
 # Step 7: Start the application
-CMD ["node", "index.js"]  # If "index.js" starts both RabbitMQ consumer and MongoDB connection
+CMD ["node", "index.js"]  
+# If "index.js" starts both RabbitMQ consumer and MongoDB connection
 
 # Optional: If you need to run `analytics.js` separately, you can modify the CMD or create a docker-compose file to run multiple services.

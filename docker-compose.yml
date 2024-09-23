@@ -1,4 +1,4 @@
-version: '3.8'
+# version: '3.8'
 
 services:
   rabbitmq:
@@ -117,23 +117,21 @@ services:
   locked_db:
     image: mongo
     
+  analytics_db:
+    image: mongo
+  
   # running_pending_db:
   #   image: mongo
 
 
   # for analytics folder
-  analytics-service:
-      build: .
-      container_name: analytics-service
-      command: ["node", "analytics.js"]
+  analytics:
+      image: analytics
       depends_on:
-        - mongo
-      environment:
-        - MONGO_URL=mongodb://mongo:27017/analyticsDB
+        rabbitmq:
+          condition: service_healthy
       ports:
         - "3080:3080"
-      networks:
-        - app-network
 
 
 

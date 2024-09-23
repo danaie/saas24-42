@@ -4,15 +4,13 @@ const mongoose = require('mongoose');
 // Connect to MongoDB
 async function connectToDB() {
   try {
-    await mongoose.connect('mongodb://localhost:27017/analyticsDB', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
+    await mongoose.connect('mongodb://analytics_db:27017'); // Remove deprecated options
     console.log('Connected to MongoDB');
   } catch (error) {
     console.error('Error connecting to MongoDB:', error);
   }
 }
+
 
 // Define the submission schema
 const submissionSchema = new mongoose.Schema({
@@ -39,9 +37,9 @@ async function storeOrUpdateInDB(data) {
       username: data.username,
       submission_name: data.submission_name,
       timestamp: data.timestamp,
-      timestamp_end: data.timestamp_end ? data.timestamp_end : '-1', // Set to -1 if not present
+      timestamp_end: data.timestamp_end ? data.timestamp_end : null,
       status: data.status,
-      extra_credits: data['extra credits'] !== undefined ? data['extra credits'] : -1,
+      extra_credits: data.extra_credits!== undefined ? data.extra_credits : -1,
       execution_time: data.execution_time !== undefined ? data.execution_time : -1,
     };
 
@@ -63,8 +61,9 @@ async function storeOrUpdateInDB(data) {
         username: data.username,
         submission_name: data.submission_name,
         timestamp: data.timestamp,
+        timestamp_end: data.timestamp_end ? data.timestamp_end : null,
         status: data.status,
-        extra_credits: data['extra credits'] !== undefined ? data['extra credits'] : -1,
+        extra_credits: data.extra_credits!== undefined ? data.extra_credits : -1,
         execution_time: data.execution_time !== undefined ? data.execution_time : -1,
       });
 
@@ -81,4 +80,5 @@ async function storeOrUpdateInDB(data) {
 module.exports = {
   connectToDB,
   storeOrUpdateInDB,
+  Submission,
 };

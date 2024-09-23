@@ -6,6 +6,7 @@ async function addLocked(msg) {
     await mongoose.connect('mongodb://locked_db:27017')
 
     let message = JSON.parse(msg);
+    console.log('Received message:');
     message.status = "locked"
     const sub = await submissions.create(message)
     console.log('Added the following submission in Locked Submissions')
@@ -26,7 +27,7 @@ async function addLocked(msg) {
           });
       
           channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)));
-          console.log(" [x] Sent to analytics %s", msg);
+          console.log(" [x] Sent to analytics a locked entry");
         });
       });
 }
