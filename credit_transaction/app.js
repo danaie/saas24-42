@@ -12,75 +12,7 @@ const credits_pub = new Credit_pub;
 
 var models = initModels(sequelize);
 
-// async function removeCredits() {
-//     try {
-//         const connection = await amqp.connect(`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_HOST}`);
-//         const channel = await connection.createChannel();
-//         const queue = "remove_credit"; //remove_credits sends msg {id:"", credits:""}
 
-//         await channel.assertQueue(queue, { durable: false });
-
-//         channel.consume(queue, async (msg) => {
-//             if (msg !== null) {
-//                 const data = JSON.parse(msg.content.toString());
-//                 console.log('Received message:', data);
-//                 const user = await models.credits.findByPk(data.id);
-//                 if (user !== null) {
-//                     await user.decrement('credits_num', { by : data.credits});
-//                     await user.reload();
-//                     console.log(user.dataValues);
-//                     await credits_pub.publish_msg({
-//                         id :user.dataValues.id,
-//                         credits_num :user.dataValues.credits_num
-//                     });
-//                 }
-//                 channel.ack(msg);
-//             }
-//         }, { noAck: false });
-//         console.log(`Waiting for messages in queue: ${queue}`);
-//     } catch (error) {
-//         console.error("Failed to consume messages:", error);
-//     }
-// }
-
-// removeCredits();
-// const app = express();
-
-// app.use(cors());
-// app.use(express.json());
-// app.use(express.urlencoded( {extended: true }));
-
-// app.post("/add_credits/:user_id", async(req,res,next) => {
-//     const id = parseInt(req.params.user_id,10);
-//     const added_credits = req.body.added_credits;
-//     const [user, created] = await models.credits.findOrCreate({
-//         where: { id: id},
-//         defaults: {
-//             credits_num :parseInt(added_credits, 10)
-//         },
-//     });
-//     if (!created) {
-//         await user.increment('credits_num', { by : added_credits});
-//         await user.reload();
-//     }
-//     console.log(user.dataValues);
-//     await credits_pub.publish_msg({
-//         id :user.dataValues.id,
-//         credits_num :user.dataValues.credits_num
-//     });
-//     res.status(200).json(user.dataValues);
-// });
-
-// app.use((req, res, next) => {
-//     res.status(404).json({ error: 'Endpoint not found'})
-// });
-
-
-// //Needed for port? 
-// const PORT = process.env.PORT || 1000;
-// app.listen(PORT, () => {
-//     console.log(`Server is running on port ${PORT}`);
-// });
 
 
 
@@ -107,6 +39,8 @@ app.post("/edit_credits", async(req,res,next) => {
         });
 
         const newCredits = user.credits_num + amount;
+        console.log(newCredits);
+
 
         if(newCredits < 0){
             return res.status(406).json({error: "Not enough credits."}); //Not Enough Credits
@@ -119,7 +53,7 @@ app.post("/edit_credits", async(req,res,next) => {
 
     console.log(user.dataValues);
 
-    //pub-sub to database? 
+    //update database t 
     await credits_pub.publish_msg({
         id: user.dataValues.id,
         credits_num: user.dataValues.credits_num
