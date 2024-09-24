@@ -23,10 +23,7 @@ class Analytics_pub {
             }
             const queue = "analytics_queue";
             await this.channel.assertQueue(queue, { durable: true });
-            this.channel.sendToQueue(queue, Buffer.from(JSON.stringify({
-                id: msg.id,
-                credits_num: msg.credits_num
-            })));
+            this.channel.sendToQueue(queue, Buffer.from(JSON.stringify(msg)));
             console.log(`The message ${JSON.stringify(msg)} is sent to the queue "${queue}"`);
         } catch (error) {
             console.error("Failed to publish message:", error);

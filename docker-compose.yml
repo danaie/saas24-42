@@ -22,7 +22,7 @@ services:
       rabbitmq:
         condition: service_healthy   # Wait for rabbitmq to be healthy
     ports:
-      - "3000:3000"   # Expose port 3000 for your microservice
+      - "3010:3010"   # Expose port 3000 for your microservice
     environment:
       - RABBITMQ_HOST=rabbitmq
       - queue_db_host = solverq_db
@@ -182,9 +182,7 @@ services:
       build: ./api_gateway
       container_name: api-gateway
       ports:
-        - "8000:8000"
-      
-   
+        - "8042:8042"    
   # for analytics folder
   analytics:
       build: ./analytics
