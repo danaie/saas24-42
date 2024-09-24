@@ -110,6 +110,8 @@ services:
   
   solverq:
     build: ./SolverQueue
+    ports:
+        - "4080:4080"
     depends_on:
       rabbitmq:
         condition: service_healthy   # Wait for rabbitmq to be healthy
