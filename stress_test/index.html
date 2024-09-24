@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue Size Over Time</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@latest"></script>
+</head>
+<body>
+    <canvas id="queueChart" width="600" height="400"></canvas>
+    <script>
+        const ctx = document.getElementById('queueChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [], // Time labels
+                datasets: [{
+                    label: 'Queue Size',
+                    data: [], // Queue size data
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'second',
+                            tooltipFormat: 'll HH:mm:ss', // Tooltip format
+                        },
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Queue Size'
+                        },
+                        ticks: {
+                            // Only show integer values on the y-axis
+                            callback: function(value) {
+                                return Number.isInteger(value) ? value : null;
+                            }
+                        }
+                    }
+                },
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        async function fetchData() {
+            try {
+                const response = await fetch('http://localhost:4040/queuenum');
+                const data = await response.json();
+
+                const now = new Date();
+                chart.data.labels.push(now); // Add current time to the labels
+                chart.data.datasets[0].data.push(data.queueSize); // Add current queue size to the dataset
+
+                chart.update(); // Update the chart
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        // Fetch data every 5 seconds
+        const refreshInterval = setInterval(fetchData, 5000);
+
+        // Stop refreshing after a set time (e.g., 600 seconds)
+        setTimeout(() => {
+            clearInterval(refreshInterval);
+        }, 600000);
+    </script>
+</body>
+</html>
