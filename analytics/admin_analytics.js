@@ -78,12 +78,20 @@ router.get('/', async (req, res) => {
       if (submission.timestamp_end !== null && submission.execution_time !== -1) {
         const timestamp = new Date(submission.timestamp);
         const timestampEnd = new Date(submission.timestamp_end);
-        const waitingTime = (timestampEnd - timestamp) / 1000 - submission.execution_time; // in seconds
-        totalWaitingTime += waitingTime;
-        countWaitingTime++;
+        
+        // Calculate the difference in seconds between the timestamps
+        const timeDifferenceInSeconds = (timestampEnd - timestamp) / 1000; 
+        
+        // Calculate the waiting time by subtracting the execution time from the difference
+        const waitingTime = timeDifferenceInSeconds - submission.execution_time;
+        
+        // Ensure that waiting time is non-negative
+        if (waitingTime >= 0) {
+          totalWaitingTime += waitingTime;
+          countWaitingTime++;
+        }
       }
     });
-
     // Calculate averages
     const averageExecutionTime = countExecutionTime > 0 ? totalExecutionTime / countExecutionTime : 0;
     const averageExtraCredits = countExtraCredits > 0 ? totalExtraCredits / countExtraCredits : 0;
