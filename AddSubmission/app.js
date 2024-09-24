@@ -12,4 +12,4 @@ app.post('/', [inputCheck, createID, sendMessage], (req, res) => {
     res.status(200).send('Ok')
 })
 
-app.listen(3000, () => console.log(`NewSubmission is listening on port ${3000}!`))
+app.listen(3010, () => console.log(`NewSubmission is listening on port ${3010}!`))

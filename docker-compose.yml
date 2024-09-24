@@ -22,7 +22,7 @@ services:
       rabbitmq:
         condition: service_healthy   # Wait for rabbitmq to be healthy
     ports:
-      - "3000:3000"   # Expose port 3000 for your microservice
+      - "3010:3010"   # Expose port 3000 for your microservice
     environment:
       - RABBITMQ_HOST=rabbitmq
       - queue_db_host = solverq_db
