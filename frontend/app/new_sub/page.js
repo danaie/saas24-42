@@ -11,6 +11,9 @@ export default function Home() {
   
   // State for handling files uploaded via drag and drop
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [submissionName, setSubmissionName] = useState('');
+  const username = 'testtt'; // Hardcoded for now
+  const userId = 10000; // Hardcoded for now
 
   // Sample data for metadata and input data
   const metadata = [
@@ -52,23 +55,38 @@ export default function Home() {
   };
 
   const postProblem = () => {
+    if (selectedModel !== 'Model A') {
+      alert('Only Model A works. The others will come soon.');
+      return;
+    }
+    
     const formData = new FormData();
     formData.append('model', selectedModel);
     formData.append('file', uploadedFiles);
+    const reader = new FileReader();
 
-    // API Gateway endpoint instead of direct local server
-    axios
-      .post('http://localhost:8000/api/submitProblem', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+    reader.onload = (event) => {
+      const jsonData = JSON.parse(event.target.result);
+
+      // Add required fields
+      jsonData.user_id = userId;
+      jsonData.username = username;
+      jsonData.submission_name = submissionName;
+      jsonData.timestamp = new Date().toISOString(); // Current timestamp
+
+      // Ensure jsonData has all required fields
+      formData.append('jsonData', JSON.stringify(jsonData)); // Append as string
+      
+      // Now make the API call
+      axios.post('http://localhost:8042/api/submitProblem', formData)
       .then((response) => {
         console.log('File uploaded successfully:', response.data);
       })
       .catch((error) => {
-        console.error('Error uploading file:', error);
+        console.error('Error uploading file:', error.response.data || error.message);
       });
+    };
+    reader.readAsText(uploadedFiles); // Read the uploaded file as text
   };
 
   return (
@@ -91,6 +109,17 @@ export default function Home() {
             <option value="Model B">Model B</option>
             <option value="Model C">Model C</option>
           </select>
+        </div>
+
+        <div className="flex justify-center mb-5">
+          <label htmlFor="submissionName" className="font-semibold mt-2 text-white">Submission Name: </label>
+          <input
+            type="text"
+            id="submissionName"
+            className="ml-3 p-2 border border-gray-400 rounded text-black"
+            value={submissionName}
+            onChange={(e) => setSubmissionName(e.target.value)}
+          />
         </div>
 
 
