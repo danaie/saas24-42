@@ -110,8 +110,6 @@ services:
   
   solverq:
     build: ./SolverQueue
-    ports:
-        - "4080:4080"
     depends_on:
       rabbitmq:
         condition: service_healthy   # Wait for rabbitmq to be healthy
@@ -180,7 +178,11 @@ services:
     ports:
       - "8002:8080"
 
-      
+  api-gateway:
+      build: ./api_gateway
+      container_name: api-gateway
+      ports:
+        - "8042:8042"    
   # for analytics folder
   analytics:
       build: ./analytics
