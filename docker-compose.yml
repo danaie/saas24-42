@@ -42,6 +42,7 @@ services:
 
   pendrunnew:
     build: ./pending_sub
+    container_name: pendrun
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
