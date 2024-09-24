@@ -78,13 +78,24 @@ router.get('/:user_id', async (req, res) => {
       monthCounts[monthKey] = (monthCounts[monthKey] || 0) + 1;
 
       // Average Waiting Time
-      if (submission.timestamp_end !== null && submission.execution_time !== -1) {
-        const timestamp = new Date(submission.timestamp);
-        const timestampEnd = new Date(submission.timestamp_end);
-        const waitingTime = (timestampEnd - timestamp) / 1000 - submission.execution_time; // in seconds
-        totalWaitingTime += waitingTime;
-        countWaitingTime++;
-      }
+        if (submission.timestamp_end !== null && submission.execution_time !== -1) {
+          const timestamp = new Date(submission.timestamp);
+          const timestampEnd = new Date(submission.timestamp_end);
+          
+          // Calculate the difference in seconds between the timestamps
+          const timeDifferenceInSeconds = (timestampEnd - timestamp) / 1000; 
+          
+          // Calculate the waiting time by subtracting the execution time from the difference
+          const waitingTime = timeDifferenceInSeconds - submission.execution_time;
+          
+          // Ensure that waiting time is non-negative
+          if (waitingTime >= 0) {
+            totalWaitingTime += waitingTime;
+            countWaitingTime++;
+          }
+        }
+        
+      
     });
 
     // Calculate averages
