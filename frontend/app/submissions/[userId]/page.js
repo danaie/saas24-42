@@ -1,5 +1,6 @@
 // pages/index.js
 "use client";
+import { useEffect, useState } from 'react';
 
 import Nav from '../../components/Nav';
 import Link from 'next/link'
@@ -22,12 +23,27 @@ export default function Home({params}) {
   ];
 
   // Sample data for the third list (Locked Results) with the 'cost' field
-  const locked = [
+  /*const locked = [
     { id: 1, name: 'Item A', runtime: '30s', submissionTime: '2024-05-01 10:00', resultTime: '2024-05-01 10:30', cost: '5' },
     { id: 2, name: 'Item B', runtime: '45s', submissionTime: '2024-05-02 11:00', resultTime: '2024-05-02 11:45', cost: '7' },
     { id: 3, name: 'Item C', runtime: '20s', submissionTime: '2024-05-03 12:00', resultTime: '2024-05-03 12:20', cost: '3' },
     { id: 4, name: 'Item D', runtime: '60s', submissionTime: '2024-05-04 13:00', resultTime: '2024-05-04 13:45', cost: '10' },
   ];
+  */
+  const [lockedSubmissions, setLockedSubmissions] = useState([]);
+
+  useEffect(() => {
+    const fetchLockedSubmissions = async () => {
+      try {
+        const response = await axios.get(`/api/user_locked/100000`);
+        setLockedSubmissions(response.data);
+      } catch (error) {
+        console.error('Error fetching locked submissions:', error);
+      }
+    };
+
+    fetchLockedSubmissions();
+  }, []);
 
   const RunConfirm = (subId) => {
     const run = confirm("Starting to run this Submission costs 10 credits.\nAre you sure?");
@@ -145,17 +161,16 @@ export default function Home({params}) {
         </div>
 
         {/* Third list: Locked Results */}
-        <h2 className="text-2xl font-semibold text-center mb-5">Locked Results</h2>
+        <h2 className="text-2xl font-semibold text-center mb-5 text-black">Locked Results</h2>
         <div className="flex flex-col gap-4 max-h-64 overflow-y-auto">
-          {locked.map(item => (
-            <div key={item.id} className="bg-white border border-gray-300 p-5 w-full shadow-lg">
+          {lockedSubmissions.map(item => (
+            <div key={item._id} className="bg-white border border-gray-300 p-5 w-full shadow-lg">
               <div className="flex justify-between space-x-6">
-                <p><strong>Name:</strong> {item.name}</p>
-                <p><strong>Runtime:</strong> {item.runtime}</p>
-                <p><strong>Submission Time:</strong> {item.submissionTime}</p>
-                <p><strong>Result Time:</strong> {item.resultTime}</p>
-                <p><strong>Cost:</strong> {item.cost} credits</p>
-                <p><button className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => UnlockConfirm(item.id)}>Unlock </button></p>
+                <p><strong>Name:</strong> {item.submission_name}</p>
+                <p><strong>Timestamp:</strong> {item.timestamp}</p>
+                <p><strong>Status:</strong> {item.status}</p>
+                <p><strong>Extra Credits:</strong> {item.extra_credits}</p>
+                <p><button className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => UnlockConfirm(item._id)}>Unlock</button></p>
               </div>
             </div>
           ))}

@@ -14,7 +14,7 @@ export default function Home() {
 
 
   // Simulate a random user ID for now
-  const userId = 100000;
+  const userId = "test";
 
   /*
   const axiosInstance = axios.create({
@@ -25,9 +25,9 @@ export default function Home() {
 */
   // Fetch current balance from the API when the component mounts
   useEffect(() => {
-    axios.get(`http://localhost:8000/api/getCredits/${userId}`)
+    axios.get(`http://localhost:8042/api/getCredits/${userId}`)
       .then(response => {
-        setCurrentBalance(response.data.credits_num); // Assuming the API returns the current balance in "credits_num" field
+        setCurrentBalance(response.data.credits_num); // Assuming the response contains credits_num
         setLoading(false);
       })
       .catch(error => {
@@ -57,7 +57,7 @@ export default function Home() {
           user_id: userId // Simulated for now
         };
 
-        axios.post('http://localhost:8000/api/addCredits', postData)
+        axios.post('http://localhost:8042/api/addCredits', postData)
           .then(response => {
             if (response.status === 200) {
               setCurrentBalance(newBalance);
