@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import Nav from '../../components/Nav';
+import Info from '../../components/info';
 import axios from 'axios';
 
 export default function Home({params}) {
@@ -70,7 +71,11 @@ export default function Home({params}) {
     }
   }
 
-  const DeleteConfirm = (subId) => {
+  const DeleteConfirm = (subId, status) => {
+    if (status === 'running') {
+      alert("The submission is currently running and cannot be deleted.");
+      return; // Exit the function without deleting
+    }
     const del = confirm("Are you sure you want to delete this process?");
     if (del) {
       //const data = new URLSearchParams();
@@ -95,33 +100,30 @@ export default function Home({params}) {
   };
   
 
-  const UnlockConfirm = (subId) => {
-    const unlock = confirm("Unlocking the results of this process will cost 10 credits.\nAre you sure?");
-    if (unlock){
-      const data = new URLSearchParams();
-      data.append('action', 'unlock');
-      data.append('userId', `${params.userId}`);
-      data.append('subId', subId);
-
-      axios.post('YOUR_URL', data, {
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
+  const UnlockConfirm = (subId, extraCredits) => {
+    const unlock = confirm("Unlocking the results of this process will cost ${extraCredits} credits.\nAre you sure?");
+    if (unlock) {
+      // Call the API Gateway to unlock the submission
+      axios.post('http://localhost:8042/api/unlock_submission', {
+        subId: subId // Send the subId in the request body
       })
       .then(response => {
-        console.log('Data posted successfully:', response.data);
+        console.log('Submission unlocked successfully:', response.data);
+        // Optionally, you can refresh the list of locked submissions or show a success message
+        window.location.reload(); // Reload the page to reflect the unlocked submission
       })
       .catch(error => {
-        console.error('Error posting data:', error);
+        console.error('Error unlocking submission:', error.response?.data || error.message);
       });
     }
-  }
+  };
 
   // Helper to simulate a download
-  const downloadFile = () => {
+  const downloadFile = (submissionData) => {
+    const blob = new Blob([JSON.stringify(submissionData, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
-    a.href = '/dfile.json';  // Path relative to the public folder
-    a.download = 'dfile.json';        // The downloaded file will be named 'dfile.json'
+    a.href = URL.createObjectURL(blob);
+    a.download = `${submissionData.submission_name}_details.json`;  // Name of the downloaded file
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -132,6 +134,7 @@ export default function Home({params}) {
 
       {/* Navbar */}
       <Nav/>
+      <Info/>
 
       {/* Main content */}
       <main className="flex-grow p-5 bg-gray-100">
@@ -148,7 +151,7 @@ export default function Home({params}) {
                   <p><strong>Submission Name:</strong> {item.submission_name}</p>
                   <p><strong>Status:</strong> {item.status}</p>
                   <p><strong>Timestamp:</strong> {new Date(item.timestamp).toLocaleString()}</p>
-                  <p><button className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => DeleteConfirm(item._id)}>Delete</button></p>
+                  <p><button className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => DeleteConfirm(item._id, item.status)}>Delete</button></p>
                 </div>
               </div>
             ))
@@ -169,7 +172,8 @@ export default function Home({params}) {
                   <p><strong>Timestamp:</strong> {new Date(item.timestamp).toLocaleString()}</p>
                   <p><strong>Status:</strong> {item.status}</p>
                   <p><strong>Extra Credits:</strong> {item.extra_credits}</p>
-                  <p><button className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => UnlockConfirm(item._id)}>Unlock</button></p>
+                  <p><button className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => UnlockConfirm(item._id, item.extra_credits)}>Unlock</button></p>
+                  <p><button className="bg-red-500 text-white py-2 px-4 rounded" onClick={() => DeleteConfirm(item._id, item.status)}>Delete</button></p>
                 </div>
               </div>
             ))
@@ -188,6 +192,8 @@ export default function Home({params}) {
                   <p><strong>Submission Name:</strong> {item.submission_name}</p>
                   <p><strong>Status:</strong> {item.status}</p>
                   <p><strong>Timestamp:</strong> {new Date(item.timestamp).toLocaleString()}</p>
+                  <p><button className="bg-green-500 text-white py-2 px-4 rounded" onClick={() => downloadFile(item)}>Download</button></p>
+                  <p><button className="bg-red-500 text-white py-2 px-4 rounded" onClick={() => DeleteConfirm(item._id, item.status)}>Delete</button></p>
                 </div>
               </div>
             ))

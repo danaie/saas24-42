@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Nav from '../components/Nav';
+import Info from '../components/info';
 import axios from 'axios';
 
 export default function Home() {
@@ -97,6 +98,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <Nav />
+      <Info/>
 
       {/* Main Content Area */}
       <main className="flex-grow p-5">
@@ -133,7 +135,8 @@ export default function Home() {
               type="number"
               value={newCredits}
               onChange={handleCreditChange}
-              className="border rounded p-2 text-center"
+              className="border rounded p-2 text-center text-black"
+              min="0"
             />
           </div>
 

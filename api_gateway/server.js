@@ -97,7 +97,7 @@ app.get('/api/user_locked/:user_id', async (req, res) => {
     const { user_id } = req.params;
     //for testing reasons:
     //const { user_id } = 10000;
-    const response = await axios.get(`http://lockedsub:4000/user_locked/abcd`);
+    const response = await axios.get(`http://lockedsub:4000/user_locked/${user_id}`);
     res.status(200).json(response.data);
   } catch (error) {
     console.error('Error fetching locked submissions:', error.message);
@@ -109,9 +109,7 @@ app.get('/api/get_pending/:user_id', async (req, res) => {
   try {
     const { user_id } = req.params;
     // Make a request to the microservice or database where the data is stored
-    const response = await axios.get('http://pendrunnew:8080/get', {
-      data: { user_id } // Send user_id as a query parameter
-    });
+    const response = await axios.get(`http://pendrunnew:8080/get/${user_id}`);
     // Respond with the data from the microservice
     res.status(200).json(response.data);
   } catch (error) {
@@ -141,6 +139,26 @@ app.post('/api/delete_sub_pending', async (req, res) => {
   }
 });
 
+// Unlock a submission
+app.post('/api/unlock_submission', async (req, res) => {
+  try {
+    const { subId } = req.body;
+
+    if (!subId) {
+      return res.status(400).json({ message: 'Missing subId' });
+    }
+
+    // Send the unlock request to the lockedsub microservice
+    const response = await axios.get(`http://lockedsub:4000/unlock/${subId}`);
+
+    // Forward the response from the lockedsub microservice
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error unlocking submission:', error.message);
+    res.status(500).json({ message: 'Failed to unlock submission: ' + error.message });
+  }
+});
+
 // Fetch all finished submissions for a user
 app.get('/api/get_finished/:user_id', async (req, res) => {
   try {
@@ -160,6 +178,21 @@ app.get('/api/get_finished/:user_id', async (req, res) => {
   }
 });
 
+// Get analytics for a specific user
+app.get('/api/analytics/:user_id', async (req, res) => {
+  try {
+    const { user_id } = req.params;
+
+    // Call the analytics microservice
+    const response = await axios.get(`http://analytics:3080/analytics/${user_id}`);  // Microservice call
+
+    // Forward the response from the analytics microservice
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error fetching analytics:', error.message);
+    res.status(500).json({ message: 'Failed to fetch analytics: ' + error.message });
+  }
+});
 
 app.listen(8042, () => {
 
