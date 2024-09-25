@@ -232,9 +232,9 @@ app.get("/getall", async (req,res,next)=>{
     });
 });
 
-app.get("/get",async (req,res,next) => {
+app.get("/get/:user_id",async (req,res,next) => {
     models.problems.findAll({
-        where :{user_id : req.body.user_id}
+        where :{user_id : req.params.user_id}
     })
     .then(problem => {
         res.status(200).json({result:problem});

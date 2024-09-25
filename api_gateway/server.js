@@ -3,13 +3,15 @@ const axios = require('axios');
 const cors = require('cors');
 const multer = require('multer'); // Import multer
 const app = express();
+const fs = require('fs');
+const path = require('path');
 
 app.use(cors());
 app.use(express.json());
 
 // Set up multer for handling file uploads
 const storage = multer.memoryStorage(); // Store the file in memory (you can also configure it to save to disk)
-const upload = multer({ storage: storage }); // Initialize multer
+const upload = multer({ dest: 'uploads/' }); // Temporary storage for uploaded files
 
 app.post('/api/signup', async (req, res) => {
   try {
@@ -70,20 +72,30 @@ app.get('/api/getCredits/:user_id', async (req, res) => {
   }
 });
 
+const FormData = require('form-data');
 
 app.post('/api/submitProblem', upload.single('file'), async (req, res) => {
   try {
     const { model } = req.body;
     const file = req.file;
 
-    // Construct the request for the pending submissions microservice
-    const formData = new FormData();
-    formData.append('model', model);
-    formData.append('file', file.buffer, file.originalname);
+    if (!file) {
+      return res.status(403).json({ message: 'No file uploaded.' });
+    }
 
-    const response = await axios.post('http://localhost:8080/submit', formData, {
-      headers: formData.getHeaders(),
+    // Read and parse the JSON file
+    const filePath = path.join(__dirname, file.path);
+    const jsonData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+
+    // Send the parsed JSON to the microservice
+    const response = await axios.post('http://newsub:3010/', jsonData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
+
+    // Clean up: Remove the uploaded file after processing
+    fs.unlinkSync(filePath);
 
     res.json(response.data);
   } catch (error) {
@@ -94,12 +106,29 @@ app.post('/api/submitProblem', upload.single('file'), async (req, res) => {
 
 app.get('/api/user_locked/:user_id', async (req, res) => {
   try {
-    const { user_id } = req.params;
-    const response = await axios.get(`http://localhost:4000/user_locked/${user_id}`);
-    res.json(response.data);
+    //const { user_id } = req.params;
+    //for testing reasons:
+    const { user_id } = 10000;
+    const response = await axios.get(`http://lockedsub:4000/user_locked/10000`);
+    res.status(200).json(response.data);
   } catch (error) {
     console.error('Error fetching locked submissions:', error.message);
-    res.status(500).json({ message: 'Failed to fetch locked submissions: ' + error.message });
+    res.status(502).json({ message: 'Failed to fetch locked submissions: ' + error.message });
+  }
+});
+
+app.get('/api/get_pending/:user_id', async (req, res) => {
+  try {
+    const { user_id } = req.params;
+    // Make a request to the microservice or database where the data is stored
+    const response = await axios.get('http://pendrunnew:8080/get', {
+      data: { user_id } // Send user_id as a query parameter
+    });
+    // Respond with the data from the microservice
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error('Error fetching data:', error.message);
+    res.status(500).json({ message: 'Failed to fetch data: ' + error.message });
   }
 });
 
