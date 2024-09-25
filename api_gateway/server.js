@@ -12,29 +12,40 @@ app.use(express.json());
 // Set up multer for handling file uploads
 const storage = multer.memoryStorage(); // Store the file in memory (you can also configure it to save to disk)
 const upload = multer({ dest: 'uploads/' }); // Temporary storage for uploaded files
-/*
-app.post('/api/signup', async (req, res) => {
+
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client('1084072222930-nnrj4ldk6o2euc0e9itf76g0irgjm3im.apps.googleusercontent.com');
+
+app.post('/api/login', async (req, res) => {
+  const { idToken } = req.body; // Extract ID token from the request body
+
   try {
-    const { name, email, password } = req.body;
-    const response = await axios.post('http://localhost:9876/signup', { name, email, password });
-    res.json(response.data);
+    // Verify the ID token with Google
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: '1084072222930-nnrj4ldk6o2euc0e9itf76g0irgjm3im.apps.googleusercontent.com', // Specify the CLIENT_ID of the app that accesses the backend
+    });
+    const payload = ticket.getPayload(); // Get the payload from the ticket
+
+    // Get user info from the payload
+    const { sub, email, name } = payload;
+
+    // Here, you can implement your logic to find or create the user in your database
+    // For example, check if the user already exists in your system
+    // If not, create a new user entry
+
+    res.status(200).json({
+      message: 'User authenticated successfully',
+      userId: sub, // Use Google user ID or any other user information
+      email: email,
+      name: name
+    });
   } catch (error) {
-    console.error('Error in signup:', error.message);
-    res.status(500).json({ message: 'Failed to sign up: ' + error.message });
+    console.error('Error verifying ID token:', error.message);
+    res.status(401).json({ message: 'Failed to authenticate user: ' + error.message });
   }
 });
 
-app.post('/api/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const response = await axios.post('http://localhost:9876/login', { email, password });
-    res.json(response.data);
-  } catch (error) {
-    console.error('Error in login:', error.message);
-    res.status(500).json({ message: 'Failed to log in: ' + error.message });
-  }
-});
-*/
 // New Credit Transaction route
 app.post('/api/addCredits', async (req, res) => {
   try {

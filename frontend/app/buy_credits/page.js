@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Nav from '../components/Nav';
 import Info from '../components/info';
 import axios from 'axios';
+import useUserSession from '../hooks/useUserSession'; // Import the custom hook
+
 
 export default function Home() {
   // State to handle credit values
@@ -15,7 +17,7 @@ export default function Home() {
 
 
   // Simulate a random user ID for now
-  const userId = "abcd";
+  const { userId } = useUserSession();
 
   /*
   const axiosInstance = axios.create({
@@ -26,15 +28,20 @@ export default function Home() {
 */
   // Fetch current balance from the API when the component mounts
   useEffect(() => {
-    axios.get(`http://localhost:8042/api/getCredits/${userId}`)
-      .then(response => {
-        setCurrentBalance(response.data.credits_num); // Assuming the response contains credits_num
-        setLoading(false);
-      })
-      .catch(error => {
-        setError('Failed to fetch current balance.');
-        setLoading(false);
-      });
+    if (userId) {
+      axios.get(`http://localhost:8042/api/getCredits/${userId}`)
+        .then(response => {
+          setCurrentBalance(response.data.credits_num); // Assuming the response contains credits_num
+          setLoading(false);
+        })
+        .catch(error => {
+          setError('Failed to fetch current balance.');
+          setLoading(false);
+        });
+    } else {
+      setError('User ID not found in session storage.');
+      setLoading(false);
+    }
   }, [userId]);
 
 

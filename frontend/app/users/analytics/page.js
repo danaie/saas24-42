@@ -4,13 +4,14 @@ import Nav from '../../components/Nav';
 import Info from '../../components/info';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
+import useUserSession from '../../hooks/useUserSession';
 
 export default function ProfilePage({ params }) {
     const [analytics, setAnalytics] = useState(null);  // To store the fetched data
     const [loading, setLoading] = useState(true);      // To manage the loading state
     const [error, setError] = useState(null);          // To handle errors
 
-    const userId = "abcd";
+    const { userId, username } = useUserSession();
 
     useEffect(() => {
         const fetchAnalytics = async () => {
@@ -25,7 +26,7 @@ export default function ProfilePage({ params }) {
         };
 
         fetchAnalytics(); // Invoke the async function
-    }, [userId]); // Dependency array ensures the function runs when userId changes
+    }, []); // Dependency array ensures the function runs when userId changes
 
     // Display loading indicator while data is being fetched
     if (loading) {

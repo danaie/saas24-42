@@ -2,19 +2,22 @@
 
 import { useState } from 'react';
 import { useRef } from 'react';
+import { useEffect } from 'react';
 import Nav from '../components/Nav';
 import Info from '../components/info';
 import axios from 'axios';
+import useUserSession from '../hooks/useUserSession'; // Import the custom hook
 
 export default function Home() {
   // State for dropdown selection
+  const { userId, username, role } = useUserSession();
   const [selectedModel, setSelectedModel] = useState('Model A');
   
   // State for handling files uploaded via drag and drop
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [submissionName, setSubmissionName] = useState('');
-  const username = 'testtt'; // Hardcoded for now
-  const userId = "abcd"; // Hardcoded for now
+  //const username = 'testtt'; // Hardcoded for now
+  
 
   // Sample data for metadata and input data
   const metadata = [
@@ -30,6 +33,8 @@ export default function Home() {
   ];
 
   const fileInputRef = useRef(null);
+
+
 
   // Handle drag-and-drop file uploads
   const handleDrop = (e) => {
