@@ -6,8 +6,8 @@ var initModels = require("./models/init-models");
 const amqp = require("amqplib");
 const problems = require("./models/problems");
 const http = require("axios");
-sequelize.sync({ force: true });
-// sequelize.sync(); 
+// sequelize.sync({ force: true });
+sequelize.sync(); 
 
 const analytics_pub = new Analytics_pub;
 
@@ -176,11 +176,11 @@ async function remove() {
     }
 }
 
-async function removeLocked() {
+async function removeRunnig() {
     try {
         const connection = await amqp.connect(`amqp://rabbitmq`);
         const channel = await connection.createChannel();
-        const exchange = 'removeLocked';
+        const exchange = 'lockedPubSub';
 
         // Assert exchange
         await channel.assertExchange(exchange, 'fanout', { durable: false });
@@ -188,19 +188,50 @@ async function removeLocked() {
         // Assert queue
         const { queue } = await channel.assertQueue('', { exclusive: true });
 
-        console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", queue);
+        console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", exchange);
 
         // Bind queue
         await channel.bindQueue(queue, exchange, '');
 
         channel.consume(queue, async (msg) => {
             if (msg !== null) {
-                const data = (msg.content.toString());
+                const data = JSON.parse(msg.content.toString());
                 console.log('Received message:', data);
-                const prob = await models.problems.findByPk(data);
+                const prob = await models.problems.findByPk(data._id);
                 if (prob === null) {
                     console.error("Problem not found");//it should never came here
                 } else {
+                    await prob.destroy();
+                }
+                channel.ack(msg);
+            }
+        }, { noAck: false });
+        console.log(`Waiting for messages in queue: ${exchange}`);
+    } catch (error) {
+        console.error("Failed to consume messages:", error);
+    }
+    try {
+        const connection = await amqp.connect(`amqp://rabbitmq`);
+        const channel = await connection.createChannel();
+        const exchange = 'finished_submission';
+
+        // Assert exchange
+        await channel.assertExchange(exchange, 'fanout', { durable: false });
+
+        // Assert queue
+        const { queue } = await channel.assertQueue('', { exclusive: true });
+
+        console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", exchange);
+
+        // Bind queue
+        await channel.bindQueue(queue, exchange, '');
+
+        channel.consume(queue, async (msg) => {
+            if (msg !== null) {
+                const data = JSON.parse(msg.content.toString());
+                console.log('Received message:', data);
+                const prob = await models.problems.findByPk(data._id);
+                if (prob !== null) {
                     await prob.destroy();
                 }
                 channel.ack(msg);
@@ -217,7 +248,7 @@ const app = express();
 newSub();
 changeStatus();
 remove();
-removeLocked();
+removeRunnig();
 
 app.use(cors());
 app.use(express.json());
