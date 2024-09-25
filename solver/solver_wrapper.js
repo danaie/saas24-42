@@ -23,9 +23,7 @@ async function startRabbitMQ() {
       durable: false
     });
 
-    channel.assertExchange(unlocked_exchange, 'fanout', {
-      durable: false
-    });
+    channel.assertQueue(unlocked_exchange, { durable: false });
 
     // handle message sending
     await channel.assertQueue(queue_out, {
@@ -57,7 +55,7 @@ async function startRabbitMQ() {
     
           if (result.extra_credits === 0) {
             console.log("Sent to finished queue");
-            channel.publish(unlocked_exchange, '', Buffer.from(JSON.stringify(messageContent)));
+            channel.sendToQueue(unlocked_exchange, Buffer.from(JSON.stringify(messageContent)));
           } else {
             console.log("Sent to locked queue");
             channel.publish(locked_exchange, '', Buffer.from(JSON.stringify(messageContent)));
