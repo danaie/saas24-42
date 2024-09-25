@@ -6,8 +6,8 @@ var initModels = require("./models/init-models");
 const amqp = require("amqplib");
 const problems = require("./models/problems");
 const http = require("axios");
-sequelize.sync({ force: true });
-// sequelize.sync(); 
+// sequelize.sync({ force: true });
+sequelize.sync(); 
 
 const analytics_pub = new Analytics_pub;
 
