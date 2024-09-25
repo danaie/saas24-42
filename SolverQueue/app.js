@@ -20,8 +20,6 @@ app.get('/queuenum', [subsInQueue], (req, res) => {
   res.status(200).send(`Submissions in Queue: ${subs}`);
 });
 
-
-
 app.listen(4080, () => console.log(`SolverQueue is listening on port ${4080}!`))
 
 function connectToRabbitMQ() {
@@ -85,7 +83,8 @@ function connectToRabbitMQ() {
 
       console.log(` [*] Waiting for messages from ${consumingQueues[2]}. To exit press CTRL+C`);
       channel.consume(consumingQueues[2], function(msg) {
-        requestNew();
+        const parsedMessage = msg.content.toString();
+        requestNew(parsedMessage);
       }, {
           noAck: true
       });
