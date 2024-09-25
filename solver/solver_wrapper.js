@@ -31,9 +31,9 @@ async function startRabbitMQ() {
     await channel.assertQueue(queue_out, {
       durable: false
     });
-
-    channel.sendToQueue(queue_out, Buffer.from(mesg_send));
-      console.log(" [x] Sent %s", mesg_send);
+    const freshMessage = "Fresh"
+    channel.sendToQueue(queue_out, Buffer.from(freshMessage));
+      console.log(" [x] Sent %s", freshMessage);
 
     
     await channel.assertQueue(queue, { durable: true });
