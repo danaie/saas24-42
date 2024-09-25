@@ -82,7 +82,7 @@ async function remove() {
                     console.log('Received message:', data);
 
                     // Find the problem by primary key (data is the problem ID)
-                    const prob = await models.problems.findByPk(data);
+                    const prob = await models.finished_problems.findByPk(data);
                     if (prob === null) {
                         console.error("Problem not found");
                     } else {
