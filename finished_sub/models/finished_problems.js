@@ -1,8 +1,9 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../connect_db');
-
+const zlib = require('zlib');
 module.exports = function (sequelize,DataTypes){
-    return sequelize.define('finished_problems', {
+
+  return sequelize.define('finished_problems', {
     _id: {
       type: DataTypes.STRING(255),
       primaryKey: true,
@@ -56,7 +57,7 @@ module.exports = function (sequelize,DataTypes){
         allowNull:false
     },
     answer: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT('long'),
         allowNull: false
     }
 }, {

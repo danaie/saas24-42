@@ -23,7 +23,12 @@ async function finishedSub() {
         channel.consume(queue, async (msg) => {
             if (msg !== null) {
                 const data = JSON.parse(msg.content.toString());
-                console.log('Received message:', data);
+                const str = data.answer
+                const sizeInBytes = Buffer.byteLength(str, 'utf8');
+                console.log(`The string is ${sizeInBytes} bytes in memory.`);
+                //console.log('Received message:', data);
+                const anwser_len = data.answer.length
+                console.log('Anwser lenght:', anwser_len)
                 const prob = await models.finished_problems.create({
                         _id: data._id,
                         user_id: data.user_id,
@@ -40,7 +45,7 @@ async function finishedSub() {
                         timestamp_end: data.timestamp_end,
                         answer: data.answer
                     });
-                console.log(prob);
+                //console.log(prob);
                 await analytics_pub.publish_msg(prob);
                 channel.ack(msg);
             }
@@ -74,20 +79,20 @@ app.get("/submission/:id", async (req, res) => {
     }
 });
 
-// Delete Finished Submission
-app.delete("/submission/:id", async (req, res) => {
-    const id = req.params.id;
-    try {
-        const result = await models.finished_problems.destroy({ where: { _id: id } });
-        if (result) {
-            res.status(200).json({ message: 'Submission deleted successfully' });
-        } else {
-            res.status(404).json({ error: 'Submission not found' });
-        }
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+// // Delete Finished Submission
+// app.delete("/submission/:id", async (req, res) => {
+//     const id = req.params.id;
+//     try {
+//         const result = await models.finished_problems.destroy({ where: { _id: id } });
+//         if (result) {
+//             res.status(200).json({ message: 'Submission deleted successfully' });
+//         } else {
+//             res.status(404).json({ error: 'Submission not found' });
+//         }
+//     } catch (err) {
+//         res.status(500).json({ error: err.message });
+//     }
+// });
 
 app.get("/getall", async (req, res, next) => {
     models.finished_problems.findAll()

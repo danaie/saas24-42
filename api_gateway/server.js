@@ -94,10 +94,10 @@ app.post('/api/submitProblem', async (req, res) => {
 
 app.get('/api/user_locked/:user_id', async (req, res) => {
   try {
-    //const { user_id } = req.params;
+    const { user_id } = req.params;
     //for testing reasons:
-    const { user_id } = 10000;
-    const response = await axios.get(`http://lockedsub:4000/user_locked/10000`);
+    //const { user_id } = 10000;
+    const response = await axios.get(`http://lockedsub:4000/user_locked/abcd`);
     res.status(200).json(response.data);
   } catch (error) {
     console.error('Error fetching locked submissions:', error.message);

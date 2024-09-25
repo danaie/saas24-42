@@ -15,7 +15,7 @@ async function connectToDB() {
 // Define the submission schema
 const submissionSchema = new mongoose.Schema({
   _id: { type: String, required: true }, // Using the provided unique ID as the MongoDB _id
-  user_id: { type: Number, required: true },
+  user_id: { type: String, required: true },
   username: { type: String, required: true },
   submission_name: { type: String, required: true },
   timestamp: { type: String, required: true },

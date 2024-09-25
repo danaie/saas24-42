@@ -7,7 +7,7 @@ import axios from 'axios';
 
 export default function Home({params}) {
   // Sample userId for fetching data
-  const userId = "10000";
+  const userId = "abcd";
 
   // State for locked submissions and pending submissions fetched from the API
   const [lockedSubmissions, setLockedSubmissions] = useState([]);

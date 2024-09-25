@@ -22,12 +22,12 @@ const inputCheck = async (req, res, next) => {
             }
         }
 
-        if (typeof num_vehicles !== 'number' || typeof depot !== 'number' || typeof max_distance !== 'number' || typeof user_id !== 'number') {
-            return res.status(400).send('num_vehicles, depot, max_distance and user_id must be numbers');
+        if (typeof num_vehicles !== 'number' || typeof depot !== 'number' || typeof max_distance !== 'number') {
+            return res.status(400).send('num_vehicles, depot and max_distance must be numbers');
         }
         console.log(timestamp)
-        if (typeof username !== 'string' || typeof submission_name !== 'string') {
-            return res.status(400).send('username and submission_name should be strings');
+        if (typeof username !== 'string' || typeof submission_name !== 'string' || typeof user_id !== 'string') {
+            return res.status(400).send('username, submission_name and user_id should be strings');
         }
 
         if (typeof timestamp === 'string') {
@@ -47,12 +47,12 @@ const inputCheck = async (req, res, next) => {
             "user_id": user_id
         }
 
-        // const response = await axios.post(`http://localhost:1000/editCredits`, data);
-        // if(response.status === 200){
-             next();
-        // }else{
-        //     res.status(406).send('Not enough credits')
-        // }
+        const response = await axios.post(`http://credit-transaction:8080/edit_credits`, data);
+        if(response.status === 200){
+            next();
+        }else{
+             res.status(406).send('Not enough credits')
+        }
         
     }catch (error) {
         console.error('Error while processing the request:', error.message || error);

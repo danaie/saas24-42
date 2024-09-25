@@ -13,7 +13,7 @@ export default function Home() {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [submissionName, setSubmissionName] = useState('');
   const username = 'testtt'; // Hardcoded for now
-  const userId = 10000; // Hardcoded for now
+  const userId = "abcd"; // Hardcoded for now
 
   // Sample data for metadata and input data
   const metadata = [
