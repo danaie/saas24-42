@@ -56,9 +56,58 @@ async function finishedSub() {
     }
 }
 
+
+async function remove() {
+    try {
+        // Connect to RabbitMQ
+        const connection = await amqp.connect(`amqp://rabbitmq`);
+        const channel = await connection.createChannel();
+        const exchange = 'remove';
+
+        // Assert the exchange
+        await channel.assertExchange(exchange, 'fanout', { durable: false });
+
+        // Assert the queue
+        const { queue } = await channel.assertQueue('', { exclusive: true });
+        console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", exhange);
+
+        // Bind queue to the exchange
+        await channel.bindQueue(queue, exchange, '');
+
+        // Consume messages
+        channel.consume(queue, async (msg) => {
+            if (msg !== null) {
+                try {
+                    const data = msg.content.toString();
+                    console.log('Received message:', data);
+
+                    // Find the problem by primary key (data is the problem ID)
+                    const prob = await models.problems.findByPk(data);
+                    if (prob === null) {
+                        console.error("Problem not found");
+                    } else {
+                        await prob.destroy();
+                    }
+                    // Acknowledge the message after processing
+                    channel.ack(msg);
+                } catch (err) {
+                    console.error('Error processing message:', err);
+                    // Optionally reject the message (without re-queueing)
+                    channel.nack(msg, false, false);
+                }
+            }
+        }, { noAck: false });
+        console.log(`Waiting for messages in queue: ${exhange}`);
+    } catch (error) {
+        console.error("Failed to consume messages:", error);
+    }
+}
+
+
 const app = express();
 
 finishedSub();
+remove();
 
 app.use(cors());
 app.use(express.json());
@@ -79,20 +128,6 @@ app.get("/submission/:id", async (req, res) => {
     }
 });
 
-// // Delete Finished Submission
-// app.delete("/submission/:id", async (req, res) => {
-//     const id = req.params.id;
-//     try {
-//         const result = await models.finished_problems.destroy({ where: { _id: id } });
-//         if (result) {
-//             res.status(200).json({ message: 'Submission deleted successfully' });
-//         } else {
-//             res.status(404).json({ error: 'Submission not found' });
-//         }
-//     } catch (err) {
-//         res.status(500).json({ error: err.message });
-//     }
-// });
 
 app.get("/getall", async (req, res, next) => {
     models.finished_problems.findAll()
@@ -102,6 +137,18 @@ app.get("/getall", async (req, res, next) => {
         res.status(500).json({ error: err });
     });
 });
+
+app.get("/get/:user_id",async (req,res,next) => {
+    models.finished_problems.findAll({
+        where :{user_id : req.params.user_id}
+    })
+    .then(problem => {
+        res.status(200).json({result:problem});
+    }).catch(err => {
+        res.status(500).json({error:err});
+    })
+})
+
 
 app.use((req, res, next) => {
     res.status(404).json({ error: 'Endpoint not found' });
