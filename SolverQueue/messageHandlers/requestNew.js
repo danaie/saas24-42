@@ -10,12 +10,14 @@ function sleep(ms) {
 async function requestNew(msg) {
     await mongoose.connect('mongodb://solverq_db:27017')
 
-    let oldest = await submissions.find().sort({timestamp: 1}).limit(1)
-    
+    let oldest = await submissions.find().sort({timestamp: 1})
+
     while((oldest.length==1 && msg!="Fresh") || oldest.length==0){
+      console.log('SolverQueue lenght', oldest.length, 'message:', msg)
       console.log("No submissions available, sleeping for 5 seconds...");
+      console.log(oldest)
       await sleep(5000);
-      oldest = await submissions.find().sort({timestamp: 1}).limit(1)
+      oldest = await submissions.find().sort({timestamp: 1})
     }
 
     let old = oldest[0]
