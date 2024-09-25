@@ -60,9 +60,6 @@ export default function Home() {
       return;
     }
     
-    const formData = new FormData();
-    formData.append('model', selectedModel);
-    formData.append('file', uploadedFiles);
     const reader = new FileReader();
 
     reader.onload = (event) => {
@@ -74,11 +71,12 @@ export default function Home() {
       jsonData.submission_name = submissionName;
       jsonData.timestamp = new Date().toISOString(); // Current timestamp
 
-      // Ensure jsonData has all required fields
-      formData.append('jsonData', JSON.stringify(jsonData)); // Append as string
-      
       // Now make the API call
-      axios.post('http://localhost:8042/api/submitProblem', formData)
+      axios.post('http://localhost:8042/api/submitProblem', jsonData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
       .then((response) => {
         console.log('File uploaded successfully:', response.data);
       })

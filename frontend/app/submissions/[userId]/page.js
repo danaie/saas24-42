@@ -12,6 +12,7 @@ export default function Home({params}) {
   // State for locked submissions and pending submissions fetched from the API
   const [lockedSubmissions, setLockedSubmissions] = useState([]);
   const [pendingSubmissions, setPendingSubmissions] = useState([]);
+  const [finishedSubmissions, setFinishedSubmissions] = useState([]);
 
   // Fetch locked submissions and pending submissions when component loads
   useEffect(() => {
@@ -32,7 +33,16 @@ export default function Home({params}) {
         console.error('Error fetching pending submissions:', error);
       }
     };
+    const fetchFinishedSubmissions = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8042/api/get_finished/${userId}`);
+        setFinishedSubmissions(response.data.result); // Assuming the data is in 'result' array
+      } catch (error) {
+        console.error('Error fetching finished submissions:', error);
+      }
+    };
 
+    fetchFinishedSubmissions();
     fetchLockedSubmissions();
     fetchPendingSubmissions(); // Fetch pending submissions from new API route
   }, [userId]);
@@ -62,25 +72,28 @@ export default function Home({params}) {
 
   const DeleteConfirm = (subId) => {
     const del = confirm("Are you sure you want to delete this process?");
-    if (del){
-      const data = new URLSearchParams();
-      data.append('action', 'delete');
-      data.append('userId', `${params.userId}`);
-      data.append('subId', subId);
-
-      axios.post('YOUR_URL', data, {
+    if (del) {
+      //const data = new URLSearchParams();
+      //data.append('subId', subId);
+  
+      axios.post('http://localhost:8042/api/delete_sub_pending', {
+        subId: subId // Send the subId as JSON
+      }, {
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
+          'Content-Type': 'application/json', // Set header to JSON
+        },
       })
       .then(response => {
-        console.log('Data posted successfully:', response.data);
+        console.log('Submission deleted successfully:', response.data);
+        // You may also want to refresh the list of submissions or show a success message
+        window.location.reload();
       })
       .catch(error => {
-        console.error('Error posting data:', error);
+        console.error('Error deleting submission:', error.response?.data || error.message);
       });
     }
-  }
+  };
+  
 
   const UnlockConfirm = (subId) => {
     const unlock = confirm("Unlocking the results of this process will cost 10 credits.\nAre you sure?");
@@ -123,8 +136,28 @@ export default function Home({params}) {
       {/* Main content */}
       <main className="flex-grow p-5 bg-gray-100">
         {/* First list: Submissions (Static Sample) */}
-        <h2 className="text-2xl font-semibold text-center mb-5">My Submissions {params.userId}</h2>
+        <h2 className="text-2xl font-semibold text-center mb-5 text-black">My Submissions</h2>
 
+        {/* Pending Submissions */}
+        <h2 className="text-2xl font-semibold text-center mb-5 text-black">Pending Submissions</h2>
+        <div className="flex flex-col gap-4 mb-10 max-h-64 overflow-y-auto">
+          {pendingSubmissions.length > 0 ? (
+            pendingSubmissions.map(item => (
+              <div key={item._id} className="bg-white border border-gray-300 p-5 w-full shadow-lg">
+                <div className="flex justify-between space-x-6 text-black">
+                  <p><strong>Submission Name:</strong> {item.submission_name}</p>
+                  <p><strong>Status:</strong> {item.status}</p>
+                  <p><strong>Timestamp:</strong> {new Date(item.timestamp).toLocaleString()}</p>
+                  <p><button className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => DeleteConfirm(item._id)}>Delete</button></p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-black">No pending submissions found.</p>
+          )}
+        </div>
+
+        
         {/* Locked Results */}
         <h2 className="text-2xl font-semibold text-center mb-5 text-black">Locked Results</h2>
         <div className="flex flex-col gap-4 max-h-64 overflow-y-auto">
@@ -141,26 +174,25 @@ export default function Home({params}) {
               </div>
             ))
           ) : (
-            <p>No locked submissions available.</p>
+            <p className="text-black">No locked submissions available.</p>
           )}
         </div>
 
-        {/* Pending Submissions */}
-        <h2 className="text-2xl font-semibold text-center mb-5">Pending Submissions</h2>
+        {/* Finished Submissions */}
+        <h2 className="text-2xl font-semibold text-center mb-5 text-black">Finished Submissions</h2>
         <div className="flex flex-col gap-4 mb-10 max-h-64 overflow-y-auto">
-          {pendingSubmissions.length > 0 ? (
-            pendingSubmissions.map(item => (
+          {finishedSubmissions.length > 0 ? (
+            finishedSubmissions.map(item => (
               <div key={item._id} className="bg-white border border-gray-300 p-5 w-full shadow-lg">
                 <div className="flex justify-between space-x-6 text-black">
                   <p><strong>Submission Name:</strong> {item.submission_name}</p>
                   <p><strong>Status:</strong> {item.status}</p>
                   <p><strong>Timestamp:</strong> {new Date(item.timestamp).toLocaleString()}</p>
-                  <p><button className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => DeleteConfirm(item._id)}>Delete</button></p>
                 </div>
               </div>
             ))
           ) : (
-            <p>No pending submissions found.</p>
+            <p className="text-black">No finished submissions found.</p>
           )}
         </div>
       </main>

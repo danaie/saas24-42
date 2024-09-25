@@ -12,7 +12,7 @@ app.use(express.json());
 // Set up multer for handling file uploads
 const storage = multer.memoryStorage(); // Store the file in memory (you can also configure it to save to disk)
 const upload = multer({ dest: 'uploads/' }); // Temporary storage for uploaded files
-
+/*
 app.post('/api/signup', async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -34,7 +34,7 @@ app.post('/api/login', async (req, res) => {
     res.status(500).json({ message: 'Failed to log in: ' + error.message });
   }
 });
-
+*/
 // New Credit Transaction route
 app.post('/api/addCredits', async (req, res) => {
   try {
@@ -74,18 +74,9 @@ app.get('/api/getCredits/:user_id', async (req, res) => {
 
 const FormData = require('form-data');
 
-app.post('/api/submitProblem', upload.single('file'), async (req, res) => {
+app.post('/api/submitProblem', async (req, res) => {
   try {
-    const { model } = req.body;
-    const file = req.file;
-
-    if (!file) {
-      return res.status(403).json({ message: 'No file uploaded.' });
-    }
-
-    // Read and parse the JSON file
-    const filePath = path.join(__dirname, file.path);
-    const jsonData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    const jsonData = req.body; // Directly access the JSON data
 
     // Send the parsed JSON to the microservice
     const response = await axios.post('http://newsub:3010/', jsonData, {
@@ -93,9 +84,6 @@ app.post('/api/submitProblem', upload.single('file'), async (req, res) => {
         'Content-Type': 'application/json',
       },
     });
-
-    // Clean up: Remove the uploaded file after processing
-    fs.unlinkSync(filePath);
 
     res.json(response.data);
   } catch (error) {
@@ -131,6 +119,47 @@ app.get('/api/get_pending/:user_id', async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch data: ' + error.message });
   }
 });
+
+app.post('/api/delete_sub_pending', async (req, res) => {
+  try {
+    const { subId } = req.body;
+
+    if (!subId) {
+      return res.status(400).json({ message: 'Missing subId' });
+    }
+
+    // Send the delete request to the deletesub microservice
+    const response = await axios.post('http://removesub:8000/remove', {
+      id: subId
+    });
+
+    // Forward the response from deletesub microservice
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error deleting submission:', error.message);
+    res.status(500).json({ message: 'Failed to delete submission: ' + error.message });
+  }
+});
+
+// Fetch all finished submissions for a user
+app.get('/api/get_finished/:user_id', async (req, res) => {
+  try {
+    const { user_id } = req.params;
+
+    // Make a request to the finished_sub microservice
+    const response = await axios.get('http://finished:8080/getall');
+
+    // Filter results by user_id if necessary (in case the microservice doesn't)
+    const finishedSubmissions = response.data.result.filter(submission => submission.user_id === user_id);
+
+    // Respond with the filtered data
+    res.status(200).json({ result: finishedSubmissions });
+  } catch (error) {
+    console.error('Error fetching finished submissions:', error.message);
+    res.status(500).json({ message: 'Failed to fetch finished submissions: ' + error.message });
+  }
+});
+
 
 app.listen(8042, () => {
 
