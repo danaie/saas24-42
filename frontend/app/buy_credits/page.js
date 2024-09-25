@@ -14,7 +14,7 @@ export default function Home() {
 
 
   // Simulate a random user ID for now
-  const userId = "test";
+  const userId = "10000";
 
   /*
   const axiosInstance = axios.create({
