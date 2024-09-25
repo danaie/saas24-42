@@ -185,6 +185,24 @@ services:
       ports:
         - "8042:8042"    
   # for analytics folder
+
+    google-auth:
+      build: ./google_auth   # Path to the google_auth microservice folder
+      container_name: google-auth
+      environment:
+        GOOGLE_CLIENT_ID: 1084072222930-nnrj4ldk6o2euc0e9itf76g0irgjm3im.apps.googleusercontent.com
+        GOOGLE_CLIENT_SECRET: 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
+        MONGO_URI: mongodb://googleauthdb:27017/googleauthdb
+        SESSION_SECRET: poB1dcYOmcK5CyYh
+      depends_on:
+        rabbitmq:
+          condition: service_healthy  # Wait for RabbitMQ to be healthy
+      ports:
+        - "8111:8111"  # Expose port 8000 for google_auth microservice
+
+  googleauthdb:
+    image: mongo 
+  
   analytics:
       build: ./analytics
       depends_on:
