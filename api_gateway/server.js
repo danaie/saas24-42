@@ -18,17 +18,16 @@ const client = new OAuth2Client('1084072222930-nnrj4ldk6o2euc0e9itf76g0irgjm3im.
 
 app.post('/api/login', async (req, res) => {
   const { idToken } = req.body; // Extract ID token from the request body
+  console.log(idToken);
 
   try {
-    // Verify the ID token with Google
-    const ticket = await client.verifyIdToken({
-      idToken,
-      audience: '1084072222930-nnrj4ldk6o2euc0e9itf76g0irgjm3im.apps.googleusercontent.com', // Specify the CLIENT_ID of the app that accesses the backend
-    });
-    const payload = ticket.getPayload(); // Get the payload from the ticket
 
-    // Get user info from the payload
-    const { sub, email, name } = payload;
+    const backendResponse = await axios.post('http://google-auth:8111', {
+      idToken // Send the ID token as part of the request body
+    });
+
+    console.log(backendResponse.data.user.googleId);
+  
 
     // Here, you can implement your logic to find or create the user in your database
     // For example, check if the user already exists in your system
@@ -36,9 +35,9 @@ app.post('/api/login', async (req, res) => {
 
     res.status(200).json({
       message: 'User authenticated successfully',
-      userId: sub, // Use Google user ID or any other user information
-      email: email,
-      name: name
+      userId: backendResponse.data.user.googleId, // Use Google user ID or any other user information
+      username: backendResponse.data.user.username,
+      role: backendResponse.data.user.role
     });
   } catch (error) {
     console.error('Error verifying ID token:', error.message);

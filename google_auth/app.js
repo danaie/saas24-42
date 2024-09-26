@@ -10,12 +10,13 @@ console.log("Hello World!");
 
 // Connect to MongoDB
 connectDB();
+app.use(express.json());
 
 // Enable CORS to allow requests from the frontend
 app.use(cors());
 
 // Routes
-app.get('/', loginWithGoogle);
+app.post('/', loginWithGoogle);
 
 app.get('/logout', (req, res) => {
     req.logout();

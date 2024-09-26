@@ -2,11 +2,12 @@
 import { useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import useUserSession from './hooks/useUserSession.js'; // Import the custom hook
 
 
 export default function Home() {
   const router = useRouter();
-
+  const { userId, username, role } = useUserSession(); // Use the hook to get user data
   useEffect(() => {
     // Load the Google Identity Services script
     const loadGoogleApi = () => {
@@ -38,19 +39,23 @@ export default function Home() {
     const handleCredentialResponse = async (response) => { 
       try {
         const idToken = response.credential; // Get ID token from response
-
+        console.log(typeof idToken, idToken);
         // Send the ID token to your API Gateway
-        const backendResponse = await axios.post('http://localhost:8042/api/login', {
-          idToken // Send the ID token as part of the request body
+        const backendResponse = await axios.post('http://localhost:8042/api/login', {  
+         idToken: idToken // Send the ID token as part of the request body
         });
 
         console.log('Response from backend:', backendResponse.data);
 
         // Assuming the response contains user ID, redirect to the specified URL
-        const userId = backendResponse.data.userId; // Extract the userId from the response
-        //router.push(`/submissions/${userId}`); // Redirect to /submissions/userId
-        sessionStorage.setItem('userId', userId); // Store userId in session storage
+        const userId = backendResponse.data.googleId; // Extract the userId from the response
+        const username = backendResponse.data.username; // Extract username
+        const role = backendResponse.data.role; // Extract role
 
+        // Store userId, email, and name in session storage
+        sessionStorage.setItem('userId', userId);
+        sessionStorage.setItem('name', username);
+        sessionStorage.setItem('role', role);
         // Redirect to the submissions page without userId in the URL
         router.push('/submissions'); // Redirect to /submissions
 

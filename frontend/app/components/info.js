@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import useUserSession from '../hooks/useUserSession'; // Import the custom hook
 
 const Info = () => {
   const [credits, setCredits] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleString());
-  const userId = 'abcd'; // Static user ID for now
+  const { userId } = useUserSession();
+
 
   // Function to fetch user credits
   const fetchCredits = async () => {
