@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Nav from '../components/Nav';
-import Info from '../components/info';
+import Info_cr from '../components/info_for_cr';
 import AdminNav from '../components/AdminNav';
 import axios from 'axios';
 import useUserSession from '../hooks/useUserSession'; // Import the custom hook
@@ -18,7 +18,7 @@ export default function Home() {
 
 
   // Simulate a random user ID for now
-  const { userId } = useUserSession();
+  const { userId, role } = useUserSession();
 
   /*
   const axiosInstance = axios.create({
@@ -29,21 +29,31 @@ export default function Home() {
 */
   // Fetch current balance from the API when the component mounts
   useEffect(() => {
-    if (userId) {
-      axios.get(`http://localhost:8042/api/getCredits/${userId}`)
-        .then(response => {
-          setCurrentBalance(response.data.credits_num); // Assuming the response contains credits_num
-          setLoading(false);
-        })
-        .catch(error => {
-          setError('Failed to fetch current balance.');
-          setLoading(false);
-        });
-    } else {
-      setError('User ID not found in session storage.');
-      setLoading(false);
+    // Only proceed if userId is available
+    
+    if (!userId) {
+      console.log("User ID is not available yet, skipping fetch.");
+      return; // Exit the effect early if userId is null/undefined
     }
-  }, [userId]);
+    console.log(`Now the user_id: ${userId}`);
+  
+    // If userId is available, fetch the user's credits
+    const fetchUserCredits = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8042/api/getCredits/${userId}`);
+        setCurrentBalance(response.data.credits_num); // Assuming the response contains credits_num
+      } catch (error) {
+        console.error('Error fetching credits:', error);
+        setError('Failed to fetch current balance.');
+      } finally {
+        setLoading(false); // Make sure loading is set to false in any case
+      }
+    };
+  
+    // Call the fetch function when userId is available
+    fetchUserCredits();
+    
+  }, [userId]); 
 
 
   // Calculate new balance when credits are updated
@@ -106,7 +116,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {role === 'admin' ? <AdminNav /> : <Nav />}
-      <Info/>
+      <Info_cr/>
 
       {/* Main Content Area */}
       <main className="flex-grow p-5">

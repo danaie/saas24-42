@@ -17,6 +17,10 @@ export default function Home() {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [submissionName, setSubmissionName] = useState('');
   //const username = 'testtt'; // Hardcoded for now
+  const [successMessage, setSuccessMessage] = useState('');
+  
+  // Add this state to handle error messages (for completeness)
+  const [errorMessage, setErrorMessage] = useState('');
   
 
   // Sample data for metadata and input data
@@ -83,12 +87,26 @@ export default function Home() {
           'Content-Type': 'application/json',
         },
       })
-      .then((response) => {
-        console.log('File uploaded successfully:', response.data);
-      })
-      .catch((error) => {
-        console.error('Error uploading file:', error.response.data || error.message);
-      });
+        .then((response) => {
+          // Check if response.data exists before accessing it
+          if (response && response.data) {
+            console.log('File uploaded successfully:', response.data);
+            setSuccessMessage('Submission successful!'); // Set success message
+            setTimeout(() => {
+              window.location.reload(); // Reload page after a short delay
+            }, 2000); // Reload after 2 seconds
+          } else {
+            console.error('Response data is missing or undefined.');
+          }
+        })
+        .catch((error) => {
+          // Handle error with improved checks
+          if (error.response && error.response.data) {
+            console.error('Error uploading file:', error.response.data);
+          } else {
+            console.error('Error uploading file:', error.message || 'Unknown error occurred');
+          }
+        });
     };
     reader.readAsText(uploadedFiles); // Read the uploaded file as text
   };
@@ -203,10 +221,22 @@ export default function Home() {
           )*/}
           {uploadedFiles && (
           <ul className="mt-3">
-            <li className="text-sm">{uploadedFiles.name}</li>
+            <li className="text-sm text-black">{uploadedFiles.name}</li>
           </ul>
         )}
         </div>
+        {/* Success or Error Messages */}
+        {successMessage && (
+          <div className="text-green-500 text-center mt-3">
+            {successMessage}
+          </div>
+        )}
+        {errorMessage && (
+          <div className="text-red-500 text-center mt-3">
+            {errorMessage}
+          </div>
+        )}
+
 
         <div  className="flex justify-center p-5">
           <button className="bg-blue-500 text-white py-2 px-4 rounded" onClick={postProblem}>Submit Problem</button>

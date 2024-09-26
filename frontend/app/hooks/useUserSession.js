@@ -2,36 +2,26 @@
 import { useEffect, useState } from 'react';
 
 const useUserSession = () => {
-  const [userId, setUserId] = useState(null);
-  const [username, setUsername] = useState('');
-  const [role, setRole] = useState('');
+  const [session, setSession] = useState({
+    userId: null,
+    username: null,
+    role: null,
+  });
 
   useEffect(() => {
     // Retrieve values from session storage
-    const storedUserId = sessionStorage.getItem('userId');
-    const storedUsername = sessionStorage.getItem('username');
-    const storedRole = sessionStorage.getItem('role');
+    const userId = sessionStorage.getItem('userId');
+    const username = sessionStorage.getItem('username');
+    const role = sessionStorage.getItem('role');
 
-    if (storedUserId) {
-      setUserId(storedUserId);
+    if (userId) {
+      setSession({ userId, username, role });
     } else {
-      console.error('User ID not found in session storage.');
-    }
-
-    if (storedUsername) {
-      setUsername(storedUsername);
-    } else {
-      console.error('Username not found in session storage.');
-    }
-
-    if (storedRole) {
-      setRole(storedRole);
-    } else {
-      console.error('Role not found in session storage.');
+      console.warn('Username not found in session storage.');
     }
   }, []);
 
-  return { userId, username, role };
+  return session;
 };
 
 export default useUserSession;

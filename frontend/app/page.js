@@ -48,15 +48,22 @@ export default function Home() {
         console.log('Response from backend:', backendResponse.data);
 
         // Assuming the response contains user ID, redirect to the specified URL
-        const userId = backendResponse.data.googleId; // Extract the userId from the response
+        const userId = backendResponse.data.userId; // Extract the userId from the response
         const username = backendResponse.data.username; // Extract username
         const role = backendResponse.data.role; // Extract role
 
         // Store userId, email, and name in session storage
         sessionStorage.setItem('userId', userId);
-        sessionStorage.setItem('name', username);
+        sessionStorage.setItem('username', username);
         sessionStorage.setItem('role', role);
         // Redirect to the submissions page without userId in the URL
+
+        // Verify session storage contents
+        console.log('Stored in session:', {
+          userId: sessionStorage.getItem('userId'),
+          username: sessionStorage.getItem('username'),
+          role: sessionStorage.getItem('role'),
+        });
         router.push('/submissions'); // Redirect to /submissions
 
       } catch (error) {

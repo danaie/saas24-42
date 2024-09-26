@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import Nav from '../components/Nav';
-import Nav from '../components/AdminNav';
+import AdminNav from '../components/AdminNav';
 import Info from '../components/info';
 import axios from 'axios';
 import useUserSession from '../hooks/useUserSession'; // Import the custom hook
@@ -11,17 +11,26 @@ import useUserSession from '../hooks/useUserSession'; // Import the custom hook
 
 export default function Submissions() {
   // Sample userId for fetching data
-  const { userId } = useUserSession(); // Use the hook to get userId
+  const { userId, role } = useUserSession(); // Use the hook to get userId
   //const { userId } = "abcd";
+  console.log(`user_id: ${userId}`);
 
   // State for locked submissions and pending submissions fetched from the API
   const [lockedSubmissions, setLockedSubmissions] = useState([]);
   const [pendingSubmissions, setPendingSubmissions] = useState([]);
   const [finishedSubmissions, setFinishedSubmissions] = useState([]);
+  const [loading, setLoading] = useState(true); // Loading state
 
   // Fetch locked submissions and pending submissions when component loads
   useEffect(() => {
     const fetchLockedSubmissions = async () => {
+
+      if (!userId) {
+        console.error('No user ID available for fetching submissions.');
+        setLoading(false);
+        return; // Exit early if userId is not available
+      }
+
       try {
         const response = await axios.get(`http://localhost:8042/api/user_locked/${userId}`);
         setLockedSubmissions(response.data);
@@ -51,6 +60,11 @@ export default function Submissions() {
     fetchLockedSubmissions();
     fetchPendingSubmissions(); // Fetch pending submissions from new API route
   }, [userId]);
+
+  // Show loading message while fetching data
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   // Functions for handling run, delete, and unlock actions with confirmation prompts
   const RunConfirm = (subId) => {

@@ -68,7 +68,7 @@ app.get('/api/getCredits/:user_id', async (req, res) => {
     console.log(`Fetching credits for user_id: ${user_id}`);
 
     const response = await axios.get(`http://credits-database:8080/get_credits`, {
-      data: { user_id } // Send user_id as a query parameter
+      data: { user_id } // Correctly sending user_id as a query parameter
     });
 
     // Forward the relevant data from the credit database response
