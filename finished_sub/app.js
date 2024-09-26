@@ -69,7 +69,7 @@ async function remove() {
 
         // Assert the queue
         const { queue } = await channel.assertQueue('', { exclusive: true });
-        console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", exhange);
+        console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", exchange);
 
         // Bind queue to the exchange
         await channel.bindQueue(queue, exchange, '');
@@ -97,7 +97,7 @@ async function remove() {
                 }
             }
         }, { noAck: false });
-        console.log(`Waiting for messages in queue: ${exhange}`);
+        console.log(`Waiting for messages in queue: ${exchange}`);
     } catch (error) {
         console.error("Failed to consume messages:", error);
     }
