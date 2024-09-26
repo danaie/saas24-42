@@ -22,7 +22,7 @@ and adds the new problem with pending status and sends the problem to the ```ana
 
 - Wait for string message fron exchange ```remove``` with the problem_id it refunds for the problem and delete it from the database.
 
-- Wait for string message from exhange ```removedLocked``` with the problem id and delete it from database
+- Wait for string message from exhange ```lockedPubSub``` or ```finished_sub``` with the problem id and delete it from database
 
 - GET request ```/get/:user_id``` returns 
 ```
