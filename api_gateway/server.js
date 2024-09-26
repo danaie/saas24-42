@@ -115,11 +115,37 @@ app.get('/api/user_locked/:user_id', async (req, res) => {
   }
 });
 
+app.get('/api/locked/admin', async (req, res) => {
+  try {
+    //const { user_id } = req.params;
+    //for testing reasons:
+    //const { user_id } = 10000;
+    const response = await axios.get(`http://lockedsub:4000//all_locked`);
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error('Error fetching locked submissions:', error.message);
+    res.status(502).json({ message: 'Failed to fetch locked submissions: ' + error.message });
+  }
+});
+
 app.get('/api/get_pending/:user_id', async (req, res) => {
   try {
     const { user_id } = req.params;
     // Make a request to the microservice or database where the data is stored
     const response = await axios.get(`http://pendrunnew:8080/get/${user_id}`);
+    // Respond with the data from the microservice
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error('Error fetching data:', error.message);
+    res.status(500).json({ message: 'Failed to fetch data: ' + error.message });
+  }
+});
+
+app.get('/api/get_pending/admin', async (req, res) => {
+  try {
+    //const { user_id } = req.params;
+    // Make a request to the microservice or database where the data is stored
+    const response = await axios.get(`http://pendrunnew:8080/getall`);
     // Respond with the data from the microservice
     res.status(200).json(response.data);
   } catch (error) {
@@ -175,7 +201,25 @@ app.get('/api/get_finished/:user_id', async (req, res) => {
     const { user_id } = req.params;
 
     // Make a request to the finished_sub microservice
-    const response = await axios.get('http://finished:8080/getall');
+    const response = await axios.get(`http://finished:8080/get/${user_id}`);
+
+    // Filter results by user_id if necessary (in case the microservice doesn't)
+    const finishedSubmissions = response.data.result.filter(submission => submission.user_id === user_id);
+
+    // Respond with the filtered data
+    res.status(200).json({ result: finishedSubmissions });
+  } catch (error) {
+    console.error('Error fetching finished submissions:', error.message);
+    res.status(500).json({ message: 'Failed to fetch finished submissions: ' + error.message });
+  }
+});
+
+app.get('/api/get_finished/admin', async (req, res) => {
+  try {
+    const { user_id } = req.params;
+
+    // Make a request to the finished_sub microservice
+    const response = await axios.get(`http://finished:8080/getall`);
 
     // Filter results by user_id if necessary (in case the microservice doesn't)
     const finishedSubmissions = response.data.result.filter(submission => submission.user_id === user_id);
@@ -195,6 +239,21 @@ app.get('/api/analytics/:user_id', async (req, res) => {
 
     // Call the analytics microservice
     const response = await axios.get(`http://analytics:3080/analytics/${user_id}`);  // Microservice call
+
+    // Forward the response from the analytics microservice
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error('Error fetching analytics:', error.message);
+    res.status(500).json({ message: 'Failed to fetch analytics: ' + error.message });
+  }
+});
+
+app.get('/api/analytics/admmin', async (req, res) => {
+  try {
+    const { user_id } = req.params;
+
+    // Call the analytics microservice
+    const response = await axios.get(`http://analytics:3080/analytics/`);  // Microservice call
 
     // Forward the response from the analytics microservice
     res.status(response.status).json(response.data);

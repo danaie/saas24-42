@@ -1,6 +1,7 @@
 "use client";
 
 import Nav from '../../components/Nav';
+import Nav from '../../components/AdminNav';
 import Info from '../../components/info';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
@@ -40,7 +41,7 @@ export default function ProfilePage({ params }) {
 
     return (
       <div className="min-h-screen flex flex-col">
-        <Nav/>
+        {role === 'admin' ? <AdminNav /> : <Nav />}
         <Info/>
 
         {/* Main Content */}

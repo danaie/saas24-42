@@ -2,16 +2,18 @@
 "use client";
 import { useEffect, useState } from 'react';
 
-import Nav from '../components/Nav';
-import Nav from '../components/AdminNav';
+
 import Info from '../components/info';
 import axios from 'axios';
 import useUserSession from '../hooks/useUserSession'; // Import the custom hook
+import { useRouter } from 'next/router';
 
 
 export default function Submissions() {
   // Sample userId for fetching data
-  const { userId } = useUserSession(); // Use the hook to get userId
+  const { userId, role } = useUserSession(); // Get the userId and role from the custom hook
+  const router = useRouter(); // Use the router for redirection
+
   //const { userId } = "abcd";
 
   // State for locked submissions and pending submissions fetched from the API
@@ -19,20 +21,25 @@ export default function Submissions() {
   const [pendingSubmissions, setPendingSubmissions] = useState([]);
   const [finishedSubmissions, setFinishedSubmissions] = useState([]);
 
+  useEffect(() => {
+    if (role !== 'admin') {
+      router.push('/not-authorized'); // Redirect to a "not authorized" page
+    }
+  }, [role, router]);
+
   // Fetch locked submissions and pending submissions when component loads
   useEffect(() => {
     const fetchLockedSubmissions = async () => {
       try {
-        const response = await axios.get(`http://localhost:8042/api/user_locked/${userId}`);
+        const response = await axios.get(`http://localhost:8042/api/locked/admin`);
         setLockedSubmissions(response.data);
       } catch (error) {
         console.error('Error fetching locked submissions:', error);
       }
     };
-
     const fetchPendingSubmissions = async () => {
       try {
-        const response = await axios.get(`http://localhost:8042/api/get_pending/${userId}`);
+        const response = await axios.get(`http://localhost:8042/api/get_pending/admin`);
         setPendingSubmissions(response.data.result); // Assuming data is in the 'result' array
       } catch (error) {
         console.error('Error fetching pending submissions:', error);
@@ -40,7 +47,7 @@ export default function Submissions() {
     };
     const fetchFinishedSubmissions = async () => {
       try {
-        const response = await axios.get(`http://localhost:8042/api/get_finished/${userId}`);
+        const response = await axios.get(`http://localhost:8042/api/get_finished/admin`);
         setFinishedSubmissions(response.data.result); // Assuming the data is in 'result' array
       } catch (error) {
         console.error('Error fetching finished submissions:', error);
@@ -137,7 +144,7 @@ export default function Submissions() {
     <div className="flex flex-col min-h-screen">
 
       {/* Navbar */}
-      {role === 'admin' ? <AdminNav /> : <Nav />}
+      <AdminNav/>
       <Info/>
 
       {/* Main content */}

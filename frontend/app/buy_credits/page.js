@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Nav from '../components/Nav';
 import Info from '../components/info';
+import AdminNav from '../components/AdminNav';
 import axios from 'axios';
 import useUserSession from '../hooks/useUserSession'; // Import the custom hook
 
@@ -104,19 +105,19 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Nav />
+      {role === 'admin' ? <AdminNav /> : <Nav />}
       <Info/>
 
       {/* Main Content Area */}
       <main className="flex-grow p-5">
         {/* Header */}
-        <div className="flex justify-center mb-7 ">
+        {/* <div className="flex justify-center mb-7 ">
           <div className="ml-4">
             <p>System Info:</p>
             <p>Date/Time: {new Date().toLocaleString()}</p>
             <p>Health: OK</p>
           </div>
-        </div>
+        </div> */}
 
         <div className="flex justify-center mb-10 ">
           <button className="bg-blue-500 text-white py-10 px-10 rounded">BUY CREDITS</button>

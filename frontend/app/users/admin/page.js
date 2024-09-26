@@ -1,20 +1,29 @@
 "use client";
 
-import AdminNav from '../../components/AdminNav';
+import Nav from '../../components/AdminNavNav';
+import Info from '../../components/info';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
+import useUserSession from '../../hooks/useUserSession';
+import AdminNav from '@/app/components/AdminNav';
 
 export default function ProfilePage({ params }) {
     const [analytics, setAnalytics] = useState(null);  // To store the fetched data
     const [loading, setLoading] = useState(true);      // To manage the loading state
     const [error, setError] = useState(null);          // To handle errors
 
-    const userId = "abcd";
+    const { userId, username, role } = useUserSession();
+
+    useEffect(() => {
+        if (role !== 'admin') {
+          router.push('/not-authorized'); // Redirect to a "not authorized" page
+        }
+      }, [role, router]);
 
     useEffect(() => {
         const fetchAnalytics = async () => {
             try {
-                const response = await axios.get(`http://localhost:8042/api/analytics/${userId}`); // Use API Gateway endpoint
+                const response = await axios.get(`http://localhost:8042/api/analytics/admin`); // Use API Gateway endpoint
                 setAnalytics(response.data); // Set the fetched analytics data
                 setLoading(false);           // Set loading to false once the data is fetched
             } catch (err) {
@@ -24,7 +33,7 @@ export default function ProfilePage({ params }) {
         };
 
         fetchAnalytics(); // Invoke the async function
-    }, [userId]); // Dependency array ensures the function runs when userId changes
+    }, []); // Dependency array ensures the function runs when userId changes
 
     // Display loading indicator while data is being fetched
     if (loading) {
@@ -39,6 +48,7 @@ export default function ProfilePage({ params }) {
     return (
       <div className="min-h-screen flex flex-col">
         <AdminNav/>
+        <Info/>
 
         {/* Main Content */}
         <main className="flex-grow bg-gray-100 p-8">
