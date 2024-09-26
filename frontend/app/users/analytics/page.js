@@ -1,7 +1,7 @@
 "use client";
 
 import Nav from '../../components/Nav';
-import Nav from '../../components/AdminNav';
+import AdminNav from '../../components/AdminNav';
 import Info from '../../components/info';
 import axios from 'axios';
 import { useState, useEffect } from 'react';

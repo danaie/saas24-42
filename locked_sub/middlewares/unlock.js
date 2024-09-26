@@ -8,7 +8,7 @@ const unlock = async(req, res, next) => {
     try{
         await mongoose.connect('mongodb://locked_db:27017');
         const { id } = req.params;
-        console.log(id)
+        console.log('Unlocking submission with ID:', id);
         const costArray = await submissions.find({ _id : id }).select('extra_credits user_id');
         const cost = costArray[0].extra_credits
         const user_id = costArray[0].user_id
@@ -31,15 +31,25 @@ const unlock = async(req, res, next) => {
                   if (error1) {
                     throw error1;
                   }
-                  const queue = 'finished_submission';
-                  const msg = JSON.stringify(del);
-                  console.log('Del is', del)
-                  channel.assertQueue(queue, {
-                    durable: false
-                  });
+                  // const queue = 'finished_submission';
+                  // const msg = JSON.stringify(del);
+                  // console.log('Del is', del)
+                  // channel.assertQueue(queue, {
+                  //   durable: false
+                  // });
               
-                  channel.sendToQueue(queue, Buffer.from(msg));
-                  console.log(" [x] Sent %s", msg);
+                  // channel.sendToQueue(queue, Buffer.from(msg));
+
+                  //console.log(" [x] Sent %s", msg);
+                  const exchange = 'finished_submission';
+                  const msg = JSON.stringify(del);
+                  console.log('Message to be sent:', msg);
+
+                  // Assert the exchange and publish the message
+                  channel.assertExchange(exchange, 'fanout', { durable: false });
+                  channel.publish(exchange, '', Buffer.from(msg)); // Fanout ignores routing key
+
+                  console.log(" [x] Sent message to exchange %s: %s", exchange, msg);
                 });
               });
             next();

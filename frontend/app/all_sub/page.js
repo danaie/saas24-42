@@ -2,17 +2,18 @@
 "use client";
 import { useEffect, useState } from 'react';
 
-
-import Info from '../components/info';
+import AdminNav from '../components/AdminNav';
+import Info from '../components/info_for_cr';
 import axios from 'axios';
 import useUserSession from '../hooks/useUserSession'; // Import the custom hook
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 
 export default function Submissions() {
   // Sample userId for fetching data
   const { userId, role } = useUserSession(); // Get the userId and role from the custom hook
-  const router = useRouter(); // Use the router for redirection
+//  const router = useRouter(); // Use the router for redirection
+  const router = useRouter();
 
   //const { userId } = "abcd";
 
@@ -20,43 +21,57 @@ export default function Submissions() {
   const [lockedSubmissions, setLockedSubmissions] = useState([]);
   const [pendingSubmissions, setPendingSubmissions] = useState([]);
   const [finishedSubmissions, setFinishedSubmissions] = useState([]);
-
+  const [loading, setLoading] = useState(true); // Loading state
+  // useEffect(() => {
+  //   if (role !== 'admin') {
+  //     router.push('/not-authorized'); // Redirect to a "not authorized" page
+  //   }
+  // }, [role, router]);
   useEffect(() => {
+    // If role is null or undefined, wait for the role to be loaded
+    if (role === null || role === undefined) {
+        return; // Skip redirect until the role is available
+    }
+
+    // Perform redirection based on role
     if (role !== 'admin') {
-      router.push('/not-authorized'); // Redirect to a "not authorized" page
+      console.log("role is: ", role);
+      router.push(`../submissions?${role}`); // Redirect to submissions page with role query
     }
   }, [role, router]);
 
   // Fetch locked submissions and pending submissions when component loads
   useEffect(() => {
-    const fetchLockedSubmissions = async () => {
-      try {
-        const response = await axios.get(`http://localhost:8042/api/locked/admin`);
-        setLockedSubmissions(response.data);
-      } catch (error) {
-        console.error('Error fetching locked submissions:', error);
-      }
-    };
     const fetchPendingSubmissions = async () => {
       try {
-        const response = await axios.get(`http://localhost:8042/api/get_pending/admin`);
-        setPendingSubmissions(response.data.result); // Assuming data is in the 'result' array
+        const pendResponse  = await axios.get(`http://localhost:8042/api/get_pending_admin/admin`);
+        //console.log('Pending Submissions Response:', pendResponse.data.result); // Debugging line
+        setPendingSubmissions(pendResponse.data.result); 
       } catch (error) {
         console.error('Error fetching pending submissions:', error);
       }
     };
+    const fetchLockedSubmissions = async () => {
+      try {
+        const lockedResponse = await axios.get(`http://localhost:8042/api/locked/admin`);
+        setLockedSubmissions(lockedResponse.data);
+      } catch (error) {
+        console.error('Error fetching locked submissions:', error);
+      }
+    };
+    
     const fetchFinishedSubmissions = async () => {
       try {
-        const response = await axios.get(`http://localhost:8042/api/get_finished/admin`);
-        setFinishedSubmissions(response.data.result); // Assuming the data is in 'result' array
+        const finishedResponse  = await axios.get(`http://localhost:8042/api/get_finished_admin/admin`);
+        setFinishedSubmissions(finishedResponse.data.result); 
       } catch (error) {
         console.error('Error fetching finished submissions:', error);
       }
     };
 
+    fetchPendingSubmissions(); 
     fetchFinishedSubmissions();
     fetchLockedSubmissions();
-    fetchPendingSubmissions(); // Fetch pending submissions from new API route
   }, [userId]);
 
   // Functions for handling run, delete, and unlock actions with confirmation prompts
@@ -140,6 +155,10 @@ export default function Submissions() {
     document.body.removeChild(a);
   };
 
+  // if (loading) {
+  //   return <p>Loading submissions...</p>;
+  // }
+
   return (
     <div className="flex flex-col min-h-screen">
 
@@ -159,6 +178,7 @@ export default function Submissions() {
             pendingSubmissions.map(item => (
               <div key={item._id} className="bg-white border border-gray-300 p-5 w-full shadow-lg">
                 <div className="flex justify-between space-x-6 text-black">
+                  <p><strong>User Name:</strong> {item.username}</p>
                   <p><strong>Submission Name:</strong> {item.submission_name}</p>
                   <p><strong>Status:</strong> {item.status}</p>
                   <p><strong>Timestamp:</strong> {new Date(item.timestamp).toLocaleString()}</p>
@@ -183,7 +203,6 @@ export default function Submissions() {
                   <p><strong>Timestamp:</strong> {new Date(item.timestamp).toLocaleString()}</p>
                   <p><strong>Status:</strong> {item.status}</p>
                   <p><strong>Extra Credits:</strong> {item.extra_credits}</p>
-                  <p><button className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => UnlockConfirm(item._id, item.extra_credits)}>Unlock</button></p>
                   <p><button className="bg-red-500 text-white py-2 px-4 rounded" onClick={() => DeleteConfirm(item._id, item.status)}>Delete</button></p>
                 </div>
               </div>

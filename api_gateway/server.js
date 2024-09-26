@@ -120,7 +120,7 @@ app.get('/api/locked/admin', async (req, res) => {
     //const { user_id } = req.params;
     //for testing reasons:
     //const { user_id } = 10000;
-    const response = await axios.get(`http://lockedsub:4000//all_locked`);
+    const response = await axios.get(`http://lockedsub:4000/all_locked`);
     res.status(200).json(response.data);
   } catch (error) {
     console.error('Error fetching locked submissions:', error.message);
@@ -141,11 +141,12 @@ app.get('/api/get_pending/:user_id', async (req, res) => {
   }
 });
 
-app.get('/api/get_pending/admin', async (req, res) => {
+app.get('/api/get_pending_admin/admin', async (req, res) => {
   try {
     //const { user_id } = req.params;
     // Make a request to the microservice or database where the data is stored
     const response = await axios.get(`http://pendrunnew:8080/getall`);
+    console.log('Pending Submissions from backend:', response.data); // Debugging line
     // Respond with the data from the microservice
     res.status(200).json(response.data);
   } catch (error) {
@@ -214,7 +215,7 @@ app.get('/api/get_finished/:user_id', async (req, res) => {
   }
 });
 
-app.get('/api/get_finished/admin', async (req, res) => {
+app.get('/api/get_finished_admin/admin', async (req, res) => {
   try {
     const { user_id } = req.params;
 
@@ -222,7 +223,7 @@ app.get('/api/get_finished/admin', async (req, res) => {
     const response = await axios.get(`http://finished:8080/getall`);
 
     // Filter results by user_id if necessary (in case the microservice doesn't)
-    const finishedSubmissions = response.data.result.filter(submission => submission.user_id === user_id);
+    const finishedSubmissions = response.data.result;
 
     // Respond with the filtered data
     res.status(200).json({ result: finishedSubmissions });
@@ -248,12 +249,12 @@ app.get('/api/analytics/:user_id', async (req, res) => {
   }
 });
 
-app.get('/api/analytics/admmin', async (req, res) => {
+app.get('/api/analytics_admin/admin', async (req, res) => {
   try {
     const { user_id } = req.params;
 
     // Call the analytics microservice
-    const response = await axios.get(`http://analytics:3080/analytics/`);  // Microservice call
+    const response = await axios.get(`http://analytics:3080/admin_analytics`);  // Microservice call
 
     // Forward the response from the analytics microservice
     res.status(response.status).json(response.data);

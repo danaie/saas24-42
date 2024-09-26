@@ -1,11 +1,10 @@
 "use client";
-
-import Nav from '../../components/AdminNavNav';
 import Info from '../../components/info';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import useUserSession from '../../hooks/useUserSession';
 import AdminNav from '@/app/components/AdminNav';
+import { useRouter } from 'next/navigation';
 
 export default function ProfilePage({ params }) {
     const [analytics, setAnalytics] = useState(null);  // To store the fetched data
@@ -13,17 +12,26 @@ export default function ProfilePage({ params }) {
     const [error, setError] = useState(null);          // To handle errors
 
     const { userId, username, role } = useUserSession();
+    const router = useRouter(); // Initialize the useRouter hook
+
 
     useEffect(() => {
-        if (role !== 'admin') {
-          router.push('/not-authorized'); // Redirect to a "not authorized" page
-        }
-      }, [role, router]);
+      // If role is null or undefined, wait for the role to be loaded
+      if (role === null || role === undefined) {
+          return; // Skip redirect until the role is available
+      }
+
+      // Perform redirection based on role
+      if (role !== 'admin') {
+        console.log("role is: ", role);
+        router.push(`../../submissions?${role}`); // Redirect to submissions page with role query
+      }
+  }, [role, router]);
 
     useEffect(() => {
         const fetchAnalytics = async () => {
             try {
-                const response = await axios.get(`http://localhost:8042/api/analytics/admin`); // Use API Gateway endpoint
+                const response = await axios.get(`http://localhost:8042/api/analytics_admin/admin`); // Use API Gateway endpoint
                 setAnalytics(response.data); // Set the fetched analytics data
                 setLoading(false);           // Set loading to false once the data is fetched
             } catch (err) {
