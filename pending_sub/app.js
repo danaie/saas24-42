@@ -134,7 +134,7 @@ async function remove() {
                             // Make an HTTP POST request to update the credits
                             const res = await http.post('http://credit-transaction:8080/edit_credits', {
                                 user_id: prob.user_id,
-                                amount: 1
+                                amount: 50
                             });
 
                             // Check if the response status is 200
