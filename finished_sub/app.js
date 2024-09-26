@@ -16,9 +16,12 @@ async function finishedSub() {
     try {
         const connection = await amqp.connect(`amqp://rabbitmq`);
         const channel = await connection.createChannel();
-        const queue = "finished_submission";
+        const exchange = "finished_submission";
 
-        await channel.assertQueue(queue, { durable: false });
+        await channel.assertExchange(exchange, 'fanout', { durable: false });
+        const { queue } = await channel.assertQueue('', { exclusive: true });
+        console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", exchange);
+        await channel.bindQueue(queue, exchange, '');
 
         channel.consume(queue, async (msg) => {
             if (msg !== null) {

@@ -2,7 +2,6 @@ const amqp = require('amqplib');
 const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-//const finished_problems = require('../finished_sub/models/finished_problems');
 
 // RabbitMQ connection settings
 const queue = 'sendNew'; // Replace with your actual queue name
@@ -10,30 +9,26 @@ const queue = 'sendNew'; // Replace with your actual queue name
 async function startRabbitMQ() {
   try {
     // Connect to RabbitMQ
-    const connection = await amqp.connect('amqp://rabbitmq'); // Replace with your RabbitM URLQ
+    const connection = await amqp.connect('amqp://rabbitmq'); // Replace with your RabbitMQ URL
     const channel = await connection.createChannel();
     
-    // Ensure queue exists
+    // Define exchanges
     const queue_out = 'RequestNewPubSub';
     const mesg_send = 'Send new';
     const locked_exchange = 'lockedPubSub';
-    const unlocked_exchange = 'finished_submission';
+    const unlocked_exchange = 'finished_submission'; // Unlocked is now an exchange
 
-    channel.assertExchange(locked_exchange, 'fanout', {
-      durable: false
-    });
+    // Assert exchanges
+    await channel.assertExchange(locked_exchange, 'fanout', { durable: false });
+    await channel.assertExchange(unlocked_exchange, 'fanout', { durable: false });
 
-    channel.assertQueue(unlocked_exchange, { durable: false });
-
-    // handle message sending
-    await channel.assertQueue(queue_out, {
-      durable: false
-    });
-    const freshMessage = "Fresh"
+    // Send a test message to the `queue_out`
+    await channel.assertQueue(queue_out, { durable: false });
+    const freshMessage = "Fresh";
     channel.sendToQueue(queue_out, Buffer.from(freshMessage));
-      console.log(" [x] Sent %s", freshMessage);
+    console.log(" [x] Sent %s", freshMessage);
 
-    
+    // Ensure the consumer queue exists
     await channel.assertQueue(queue, { durable: true });
     
     console.log(`Waiting for messages in ${queue}. To exit press CTRL+C`);
@@ -44,6 +39,7 @@ async function startRabbitMQ() {
         try {
           const messageContent = JSON.parse(msg.content.toString());
           
+          // Process the message by running Python solver
           const result = await runPythonSolver(messageContent);
     
           messageContent.answer = result.answer;
@@ -53,20 +49,27 @@ async function startRabbitMQ() {
     
           console.log('Updated message:', messageContent);
     
+          // Decide where to send the message based on extra credits
           if (result.extra_credits === 0) {
-            console.log("Sent to finished queue");
-            channel.sendToQueue(unlocked_exchange, Buffer.from(JSON.stringify(messageContent)));
+            console.log("Sent to finished_submission (unlocked exchange)");
+            // Publish the message to the unlocked exchange
+            channel.publish(unlocked_exchange, '', Buffer.from(JSON.stringify(messageContent)));
           } else {
-            console.log("Sent to locked queue");
+            console.log("Sent to lockedPubSub (locked exchange)");
+            // Publish the message to the locked exchange
             channel.publish(locked_exchange, '', Buffer.from(JSON.stringify(messageContent)));
           }
           
+          // Acknowledge the message
           channel.ack(msg);
+
+          // Optionally send a follow-up message to another queue (queue_out)
           channel.sendToQueue(queue_out, Buffer.from(mesg_send));
           console.log(" [x] Sent %s", mesg_send);
+
         } catch (error) {
           console.error('Error processing message:', error);
-          channel.nack(msg); // Negative ack to requeue the message for later processing
+          channel.nack(msg); // Negative acknowledgment, to requeue the message
         }
       }
     });
@@ -79,13 +82,13 @@ async function startRabbitMQ() {
 // Function to run the Python solver and measure execution time
 async function runPythonSolver(data) {
   const startTime = Date.now();
-  // Count the number of locations
   const numLocations = data.locations.length;
+  
   // Create a temporary locations JSON file for the solver
   const locationsFilePath = path.join(__dirname, `locations_${numLocations}.json`);
   fs.writeFileSync(locationsFilePath, JSON.stringify({ locations: data.locations }, null, 2));
 
-  // Prepare the command to run Python script
+  // Prepare the command to run the Python script
   const command = `python3 vrpSolver.py ${locationsFilePath} ${data.num_vehicles} ${data.depot} ${data.max_distance}`;
   
   return new Promise((resolve, reject) => {
@@ -101,7 +104,7 @@ async function runPythonSolver(data) {
         if (result < 0) {
             result = 0;
         }
-        const extra_credits = result*50;
+        const extra_credits = result * 50;
 
         resolve({
           answer: stdout.trim(),
