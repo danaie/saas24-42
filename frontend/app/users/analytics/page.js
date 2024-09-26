@@ -17,7 +17,7 @@ export default function ProfilePage({ params }) {
     useEffect(() => {
         const fetchAnalytics = async () => {
             try {
-                const response = await axios.get(`http://localhost:8042/api/analytics/${userId}`); // Use API Gateway endpoint
+                const response = await axios.get(`http://api-gateway:8042/api/analytics/${userId}`); // Use API Gateway endpoint
                 setAnalytics(response.data); // Set the fetched analytics data
                 setLoading(false);           // Set loading to false once the data is fetched
             } catch (err) {
@@ -47,7 +47,7 @@ export default function ProfilePage({ params }) {
         {/* Main Content */}
         <main className="flex-grow bg-gray-100 p-8">
           <div className="max-w-lg mx-auto bg-white shadow-md rounded-lg p-6">
-            <h2 className="text-2xl font-semibold mb-4 text-black">{analytics?.username || 'User'}'s Analytics</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-black">{analytics?.username || 'User'} Analytics</h2>
 
             {/* User Info */}
             <div className="space-y-4">

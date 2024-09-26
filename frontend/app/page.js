@@ -8,6 +8,7 @@ import useUserSession from './hooks/useUserSession.js'; // Import the custom hoo
 export default function Home() {
   const router = useRouter();
   const { userId, username, role } = useUserSession(); // Use the hook to get user data
+
   useEffect(() => {
     // Load the Google Identity Services script
     const loadGoogleApi = () => {

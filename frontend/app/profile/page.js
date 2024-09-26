@@ -1,4 +1,4 @@
-"use client";
+/*"use client";
 
 import Nav from '../../components/Nav';
 import axios from 'axios';
@@ -45,11 +45,11 @@ export default function ProfilePage({params}) {
       return <div>{error}</div>; // Display error message if fetching fails
     }*/
   
-    const handleEdit = async () => {
+    /*const handleEdit = async () => {
       const newUsername = prompt("Enter new username:", uname);
       if (newUsername) {
         setUname(newUsername); user.username = newUsername;//********Να αφαιρεθεί */
-        try {
+        /*try {
           // Send a POST request to your backend
           const response = await axios.post('https://localhost:8000/update-username', {
             userId: params.userId,
@@ -84,7 +84,7 @@ export default function ProfilePage({params}) {
           user.credits += newCredits;
           setCred(newCredits+cred);//***********Να αφαιρεθεί */
 
-          try {
+          /*try {
             // Send a POST request to your backend
             const response = await axios.post('https://localhost:8000/update-credits', {
               userId: params.userId,
@@ -115,12 +115,12 @@ export default function ProfilePage({params}) {
 
         <Nav/>
   
-        {/* Main Content */}
+        {/* Main Content *//*}
         <main className="flex-grow bg-gray-100 p-8">
           <div className="max-w-lg mx-auto bg-white shadow-md rounded-lg p-6">
             <h2 className="text-2xl font-semibold mb-4">Profile Information</h2>
             
-            {/* User Info */}
+            {/* User Info *//*}
             <div className="space-y-4">
               <div>
                 <p className="text-lg font-medium">Username: <span className="font-normal">{uname}
@@ -141,4 +141,13 @@ export default function ProfilePage({params}) {
         </main>
       </div>
     );
-  }
+  }*/
+
+
+
+
+    export default function ProfilePage({params}) {
+    return(
+      <div></div>
+    )
+    }

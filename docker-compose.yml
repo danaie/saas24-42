@@ -211,6 +211,13 @@ services:
       ports:
         - "3080:3080"
 
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:3000"
 
 volumes:
   mysql_data:

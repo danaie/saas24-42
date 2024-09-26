@@ -82,7 +82,7 @@ export default function Home() {
       jsonData.timestamp = new Date().toISOString(); // Current timestamp
 
       // Now make the API call
-      axios.post('http://localhost:8042/api/submitProblem', jsonData, {
+      axios.post('http://api-gateway:8042/api/submitProblem', jsonData, {
         headers: {
           'Content-Type': 'application/json',
         },

@@ -32,7 +32,7 @@ export default function Submissions() {
       }
 
       try {
-        const response = await axios.get(`http://localhost:8042/api/user_locked/${userId}`);
+        const response = await axios.get(`http://api-gateway:8042/api/user_locked/${userId}`);
         setLockedSubmissions(response.data);
       } catch (error) {
         console.error('Error fetching locked submissions:', error);
@@ -41,7 +41,7 @@ export default function Submissions() {
 
     const fetchPendingSubmissions = async () => {
       try {
-        const response = await axios.get(`http://localhost:8042/api/get_pending/${userId}`);
+        const response = await axios.get(`http://api-gateway:8042/api/get_pending/${userId}`);
         setPendingSubmissions(response.data.result); // Assuming data is in the 'result' array
       } catch (error) {
         console.error('Error fetching pending submissions:', error);
@@ -49,7 +49,7 @@ export default function Submissions() {
     };
     const fetchFinishedSubmissions = async () => {
       try {
-        const response = await axios.get(`http://localhost:8042/api/get_finished/${userId}`);
+        const response = await axios.get(`http://api-gateway:8042/api/get_finished/${userId}`);
         setFinishedSubmissions(response.data.result); // Assuming the data is in 'result' array
       } catch (error) {
         console.error('Error fetching finished submissions:', error);
@@ -99,7 +99,7 @@ export default function Submissions() {
       //const data = new URLSearchParams();
       //data.append('subId', subId);
   
-      axios.post('http://localhost:8042/api/delete_sub_pending', {
+      axios.post('http://api-gateway:8042/api/delete_sub_pending', {
         subId: subId // Send the subId as JSON
       }, {
         headers: {
@@ -122,7 +122,7 @@ export default function Submissions() {
     const unlock = confirm("Unlocking the results of this process will cost ${extraCredits} credits.\nAre you sure?");
     if (unlock) {
       // Call the API Gateway to unlock the submission
-      axios.post('http://localhost:8042/api/unlock_submission', {
+      axios.post('http://api-gateway:8042/api/unlock_submission', {
         subId: subId // Send the subId in the request body
       })
       .then(response => {
