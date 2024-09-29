@@ -7,8 +7,8 @@ const Analytics_pub = require("./analytics_pub")
 
 const analytics_pub = new Analytics_pub;
 
-sequelize.sync({ force: true });  
-// sequelize.sync(); 
+//sequelize.sync({ force: true });  
+ sequelize.sync(); 
 
 var models = initModels(sequelize);
 

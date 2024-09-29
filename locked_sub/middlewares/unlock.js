@@ -56,20 +56,9 @@ const unlock = async(req, res, next) => {
         }else{
              res.status(406).send('Not enough credits')
         }
-    }catch (error) {
-      if (error.response) {
-          // Handle specific error responses
-          if (error.response.status === 406) {
-              return res.status(406).json({ message: "Not enough credits." });
-          }
-          // Log the error for debugging
-          console.error(`Error ${error.response.status}:`, error.response.data);
-          return res.status(error.response.status).json(error.response.data); // Forward the error
-      }
-      
-      // Generic error handler
-      console.error('Error while processing the request:', error.message || error);
-      return res.status(500).send('Internal Server Error.');
+    }catch(error){
+        console.error('Error while processing the request:', error.message || error);
+        res.status(500).send('Internal Server Error.');
     }
 }
 
