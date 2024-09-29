@@ -3,6 +3,7 @@ const submissions = require('../dbSchema')
 
 async function addQ(msg) {
     await mongoose.connect('mongodb://solverq_db:27017')
+    console.log(msg)
     const sub = await submissions.create(msg)
     //const test = await submissions.findOne({username : "Manos"})
     console.log(sub)

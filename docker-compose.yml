@@ -114,6 +114,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy   # Wait for rabbitmq to be healthy
+    ports:
+      - "4080:4080"
       
   solver:
     build: ./solver

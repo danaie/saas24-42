@@ -14,7 +14,6 @@ async function startRabbitMQ() {
     
     // Define exchanges
     const queue_out = 'RequestNewPubSub';
-    const mesg_send = 'Send new';
     const locked_exchange = 'lockedPubSub';
     const unlocked_exchange = 'finished_submission'; // Unlocked is now an exchange
 
@@ -64,6 +63,7 @@ async function startRabbitMQ() {
           channel.ack(msg);
 
           // Optionally send a follow-up message to another queue (queue_out)
+          mesg_send = messageContent._id
           channel.sendToQueue(queue_out, Buffer.from(mesg_send));
           console.log(" [x] Sent %s", mesg_send);
 

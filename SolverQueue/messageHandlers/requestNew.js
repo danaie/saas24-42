@@ -9,22 +9,20 @@ function sleep(ms) {
 
 async function requestNew(msg) {
     await mongoose.connect('mongodb://solverq_db:27017')
-
-    let oldest = await submissions.find().sort({timestamp: 1})
-
-    while((oldest.length==1 && msg!="Fresh") || oldest.length==0){
+    console.log(msg)
+    if(msg != "Fresh"){
+      await submissions.deleteOne({_id: msg});
+    }
+    let oldest = await submissions.find().sort({timestamp: 1}).limit(1)
+    console.log(oldest)
+    while(oldest.length==0){
       console.log('SolverQueue lenght', oldest.length, 'message:', msg)
       console.log("No submissions available, sleeping for 5 seconds...");
-      console.log(oldest)
       await sleep(5000);
-      oldest = await submissions.find().sort({timestamp: 1})
+      oldest = await submissions.find().sort({timestamp: 1}).limit(1)
     }
 
-    let old = oldest[0]
-    if(msg!="Fresh"){
-      await submissions.deleteOne({_id: old.id});
-      old = oldest[1]
-    }
+    let old=oldest[0]
     
     amqp.connect('amqp://rabbitmq', function(error0, connection) {
         if (error0) {
