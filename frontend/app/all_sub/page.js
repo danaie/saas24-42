@@ -202,9 +202,10 @@ export default function Submissions() {
             lockedSubmissions.map(item => (
               <div key={item._id} className="bg-white border border-gray-300 p-5 w-full shadow-lg">
                 <div className="flex justify-between space-x-6 text-black">
-                  <p><strong>Name:</strong> {item.submission_name}</p>
-                  <p><strong>Timestamp:</strong> {new Date(item.timestamp).toLocaleString()}</p>
+                  <p><strong>User Name:</strong> {item.username}</p>
+                  <p><strong>Submission Name:</strong> {item.submission_name}</p>
                   <p><strong>Status:</strong> {item.status}</p>
+                  <p><strong>Timestamp:</strong> {new Date(item.timestamp).toLocaleString()}</p>
                   <p><strong>Extra Credits:</strong> {item.extra_credits}</p>
                   <p><button className="bg-red-500 text-white py-2 px-4 rounded" onClick={() => DeleteConfirm(item._id, item.status)}>Delete</button></p>
                 </div>
@@ -222,6 +223,7 @@ export default function Submissions() {
             finishedSubmissions.map(item => (
               <div key={item._id} className="bg-white border border-gray-300 p-5 w-full shadow-lg">
                 <div className="flex justify-between space-x-6 text-black">
+                  <p><strong>User Name:</strong> {item.username}</p>
                   <p><strong>Submission Name:</strong> {item.submission_name}</p>
                   <p><strong>Status:</strong> {item.status}</p>
                   <p><strong>Timestamp:</strong> {new Date(item.timestamp).toLocaleString()}</p>

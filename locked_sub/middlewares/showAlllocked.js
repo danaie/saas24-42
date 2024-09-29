@@ -9,7 +9,7 @@ const showLocked = async (req, res, next) => {
         await mongoose.connect('mongodb://locked_db:27017');
 
         let locked;
-        locked = await submissions.find().select('submission_name timestamp status extra_credits _id');
+        locked = await submissions.find().select('username submission_name timestamp status extra_credits _id');
 
         console.log('=============================');
         console.log('Locked Submissions');
