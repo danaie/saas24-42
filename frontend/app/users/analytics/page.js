@@ -12,12 +12,17 @@ export default function ProfilePage({ params }) {
     const [loading, setLoading] = useState(true);      // To manage the loading state
     const [error, setError] = useState(null);          // To handle errors
 
-    const { userId, username } = useUserSession();
+    const { userId, username, role } = useUserSession();
 
     useEffect(() => {
         const fetchAnalytics = async () => {
+          if (!userId) {
+            // If userId is still null or undefined, do nothing
+            return;
+          }
             try {
-                const response = await axios.get(`http://api-gateway:8042/api/analytics/${userId}`); // Use API Gateway endpoint
+              console.log({ userId, username });
+                const response = await axios.get(`http://localhost:8042/api/my_analytics/${userId}`); // Use API Gateway endpoint
                 setAnalytics(response.data); // Set the fetched analytics data
                 setLoading(false);           // Set loading to false once the data is fetched
             } catch (err) {
@@ -27,7 +32,7 @@ export default function ProfilePage({ params }) {
         };
 
         fetchAnalytics(); // Invoke the async function
-    }, []); // Dependency array ensures the function runs when userId changes
+    }, [userId]); // Dependency array ensures the function runs when userId changes
 
     // Display loading indicator while data is being fetched
     if (loading) {
@@ -51,8 +56,7 @@ export default function ProfilePage({ params }) {
 
             {/* User Info */}
             <div className="space-y-4">
-              <p className="text-lg font-medium text-black">User ID: <span className="font-normal">{params.userId}</span></p>
-              <p className="text-lg font-medium text-black">Username: <span className="font-normal">{analytics.username}</span></p>
+              <p className="text-lg font-medium text-black">Username: <span className="font-normal">{username}</span></p>
               <p className="text-lg font-medium text-black">Average execution time: <span className="font-normal">{analytics.average_execution_time.toFixed(2)}</span> seconds</p>
               <p className="text-lg font-medium text-black">Average extra credits: <span className="font-normal">{analytics.average_extra_credits.toFixed(2)}</span></p>
               <p className="text-lg font-medium text-black">Average requests per day: <span className="font-normal">{analytics.average_requests_per_day.toFixed(2)}</span></p>

@@ -12,7 +12,7 @@ const Info = () => {
   // Function to fetch user credits
   const fetchCredits = async () => {
     try {
-      const response = await axios.get(`http://api-gateway:8042/api/getCredits/${userId}`);
+      const response = await axios.get(`http://localhost:8042/api/getCredits/${userId}`);
       setCredits(response.data.credits_num); // Set the fetched credits
       console.log(`Now the credits: ${credits}`);
     } catch (error) {

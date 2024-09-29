@@ -42,7 +42,7 @@ export default function Home() {
         const idToken = response.credential; // Get ID token from response
         console.log(typeof idToken, idToken);
         // Send the ID token to your API Gateway
-        const backendResponse = await axios.post('http://api-gateway:8042/api/login', {  
+        const backendResponse = await axios.post('http://localhost:8042/api/login', {  
          idToken: idToken // Send the ID token as part of the request body
         });
 

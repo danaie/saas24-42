@@ -40,7 +40,7 @@ export default function Home() {
     // If userId is available, fetch the user's credits
     const fetchUserCredits = async () => {
       try {
-        const response = await axios.get(`http://api-gateway:8042/api/getCredits/${userId}`);
+        const response = await axios.get(`http://localhost:8042/api/getCredits/${userId}`);
         setCurrentBalance(response.data.credits_num); // Assuming the response contains credits_num
       } catch (error) {
         console.error('Error fetching credits:', error);
@@ -76,7 +76,7 @@ export default function Home() {
           user_id: userId // Simulated for now
         };
 
-        axios.post('http://api-gateway:8042/api/addCredits', postData)
+        axios.post('http://localhost:8042/api/addCredits', postData)
           .then(response => {
             if (response.status === 200) {
               setCurrentBalance(newBalance);

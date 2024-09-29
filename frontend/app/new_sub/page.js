@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import Nav from '../components/Nav';
 import Info from '../components/info';
 import axios from 'axios';
+import AdminNav from '../components/AdminNav';
 import useUserSession from '../hooks/useUserSession'; // Import the custom hook
 
 export default function Home() {
@@ -82,7 +83,7 @@ export default function Home() {
       jsonData.timestamp = new Date().toISOString(); // Current timestamp
 
       // Now make the API call
-      axios.post('http://api-gateway:8042/api/submitProblem', jsonData, {
+      axios.post('http://localhost:8042/api/submitProblem', jsonData, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -114,7 +115,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
 
-      <Nav/>
+      {role === 'admin' ? <AdminNav /> : <Nav />}
       <Info/>
 
       {/* Main Content Area */}

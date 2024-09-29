@@ -234,9 +234,10 @@ app.get('/api/get_finished_admin/admin', async (req, res) => {
 });
 
 // Get analytics for a specific user
-app.get('/api/analytics/:user_id', async (req, res) => {
+app.get('/api/my_analytics/:user_id', async (req, res) => {
   try {
     const { user_id } = req.params;
+    console.log({ user_id });
 
     // Call the analytics microservice
     const response = await axios.get(`http://analytics:3080/analytics/${user_id}`);  // Microservice call
