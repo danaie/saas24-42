@@ -47,11 +47,17 @@ const inputCheck = async (req, res, next) => {
             "user_id": user_id
         }
 
-        const response = await axios.post(`http://credit-transaction:8080/edit_credits`, data);
-        if(response.status === 200){
-            next();
-        }else{
-             res.status(406).send('Not enough credits')
+        try {
+            const response = await axios.post(`http://credit-transaction:8080/edit_credits`, data);
+            if (response.status === 200) {
+                next();
+            } else {
+                return res.status(406).send('Not enough credits');
+            }
+        } catch (creditError) {
+            // Handle any error from the credit transaction service
+            console.error('Error contacting credit service:', creditError.message || creditError);
+            return res.status(406).send('Not enough credits'); // Handle as not enough credits if credit service fails
         }
         
     }catch (error) {

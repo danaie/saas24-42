@@ -125,24 +125,25 @@ export default function Submissions() {
   const UnlockConfirm = (subId, extraCredits) => {
     const unlock = confirm(`Unlocking the results of this process will cost ${extraCredits} credits.\nAre you sure?`);
     if (unlock) {
-      // Call the API Gateway to unlock the submission
-      axios.post('http://localhost:8042/api/unlock_submission', {
-        subId: subId // Send the subId in the request body
-      })
-      .then(response => {
-        console.log('Submission unlocked successfully:', response.data);
-        // Optionally, you can refresh the list of locked submissions or show a success message
-        window.location.reload(); // Reload the page to reflect the unlocked submission
-      })
-      .catch(error => {
-        if (error.response && error.response.status === 406) {
-          setUnlockError('Not enough credits to unlock this submission.');
-        } else {
-          console.error('Error unlocking submission:', error.response?.data || error.message);
-        }
-      });
+        // Call the API Gateway to unlock the submission
+        axios.post('http://localhost:8042/api/unlock_submission', {
+            subId: subId // Send the subId in the request body
+        })
+        .then(response => {
+            console.log('Submission unlocked successfully:', response.data);
+            // Optionally, you can refresh the list of locked submissions or show a success message
+            window.location.reload(); // Reload the page to reflect the unlocked submission
+        })
+        .catch(error => {
+            if (error.response && error.response.status === 406) {
+                setUnlockError('Not enough credits to unlock this submission.'); // Set error message
+            } else {
+                console.error('Error unlocking submission:', error.response?.data || error.message);
+            }
+        });
     }
-  };
+};
+
 
   // Helper to simulate a download
   const downloadFile = (submissionData) => {

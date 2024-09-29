@@ -119,7 +119,7 @@ export default function Home() {
       <Info_cr/>
 
       {/* Main Content Area */}
-      <main className="flex-grow p-5">
+      <main className="flex-grow p-5 bg-gray-100">
         {/* Header */}
         {/* <div className="flex justify-center mb-7 ">
           <div className="ml-4">
@@ -134,7 +134,7 @@ export default function Home() {
         </div>
 
         {/* Credit Info Fields */}
-        <div className="flex justify-between mb-5">
+        <div className="flex justify-between mb-5 text-black">
           <div className="flex flex-col items-center">
             <label htmlFor="currentBalance">Current Balance</label>
             <input
@@ -142,11 +142,11 @@ export default function Home() {
               type="text"
               value={currentBalance}
               disabled
-              className="border rounded p-2 text-center"
+              className="border rounded p-2 text-center bg-white"
             />
           </div>
 
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center text-black">
             <label htmlFor="newCredits">New Credits</label>
             <input
               id="newCredits"
@@ -158,14 +158,14 @@ export default function Home() {
             />
           </div>
 
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center text-black">
             <label htmlFor="newBalance">New Balance</label>
             <input
               id="newBalance"
               type="text"
               value={newBalance}
               disabled
-              className="border rounded p-2 text-center"
+              className="border rounded p-2 text-center bg-white"
             />
           </div>
         </div>

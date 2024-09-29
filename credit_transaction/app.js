@@ -68,42 +68,42 @@ app.use(express.urlencoded( {extended: true }));
 // })
 
 //EDIT CREDITS 
-app.post("/edit_credits", async(req,res,next) => {
-
-    const {amount, user_id} = req.body;
+app.post("/edit_credits", async (req, res, next) => {
+    const { amount, user_id } = req.body;
 
     try {
         const user = await models.credits.findByPk(user_id);
         if (!user) {
-            return res.status(400).json({error:`No user ${user_id} in database`});
-        }
-        else {
-            user.credits_num = parseInt(user.credits_num) + parseInt(amount);
-            if(user.credits_num < 0){
-            return res.status(406).json({error: "Not enough credits."}); //Not Enough Credits
-            }
-            else {
-                 //update database 
+            return res.status(400).json({ error: `No user ${user_id} in database` });
+        } else {
+            // Calculate new credits
+            const newCredits = parseInt(user.credits_num) + parseInt(amount);
+            // Check if there are enough credits
+            if (newCredits < 0) {
+                return res.status(406).json({ error: "Not enough credits." }); // Return error if not enough credits
+            } else {
+                // Update the user credits in the database
+                user.credits_num = newCredits;
+                
+                // Publish message for credits update (if necessary)
                 await credits_pub.publish_msg({
                     id: user.dataValues.user_id,
                     credits_num: user.dataValues.credits_num
                 });
-            user.save()
-            .then(() => {
-                res.status(200).json(user.dataValues); //Transaction Done
-            })
-
+                
+                // Save the updated user data
+                await user.save(); 
+                return res.status(200).json(user.dataValues); // Transaction Done
             }
         }
+    } catch (error) {
+        console.error("Error updating credits:", error);
+        return res.status(500).json({ error: "Internal Server Error" }); // 500 - Error
     }
-catch (error) {
-    console.error("Error updating credits:", error);
-    res.status(500).json({ error: "Internal Server Error" }); // 500 - Error
-}
 });
 
 app.use((req, res, next) => {
-    res.status(404).json({ error: 'Endpoint not found'})
+    res.status(404).json({ error: 'Endpoint not found' });
 });
 
 

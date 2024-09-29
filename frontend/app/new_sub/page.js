@@ -82,45 +82,33 @@ export default function Home() {
             },
         })
         .then((response) => {
-            if (response && response.data) {
-                console.log('File uploaded successfully:', response.data);
-                setSuccessMessage('Submission successful!');
-                setErrorMessage(''); // Clear any previous error messages
-                setTimeout(() => {
-                    window.location.reload(); // Reload page after a short delay
-                }, 2000); // Reload after 2 seconds
-            } else {
-                console.error('Response data is missing or undefined.');
-            }
-        })
-        .catch((error) => {
-            if (error.response) {
-                // Check for specific status codes and set error messages
-                switch (error.response.status) {
-                    case 400:
-                        setErrorMessage('Incorrect file format. Please ensure the submission follows the required structure.');
-                        break;
-                    case 406:
-                        setErrorMessage('Not enough credits. Please add more credits to proceed.');
-                        break;
-                    case 500:
-                        setErrorMessage('Internal server error. Please try again later.');
-                        break;
-                    default:
-                        setErrorMessage('An unexpected error occurred. Please try again.');
-                }
-            } else {
-                console.error('Error uploading file:', error.message || 'Unknown error occurred');
-                setErrorMessage('Submission failed. ' + (error.message || 'Unknown error occurred.'));
-            }
-        });
-    };
+          if (response && response.data) {
+              console.log('File uploaded successfully:', response.data);
+              setSuccessMessage('Submission successful!');
+              setErrorMessage(''); // Clear any previous error messages
+              setTimeout(() => {
+                  window.location.reload(); // Reload page after a short delay
+              }, 2000); // Reload after 2 seconds
+          } else {
+              console.error('Response data is missing or undefined.');
+          }
+      })
+      .catch((error) => {
+          if (error.response) {
+              // Use the error message from the backend
+              setErrorMessage(error.response.data.message || 'An unexpected error occurred.');
+          } else {
+              console.error('Error uploading file:', error.message || 'Unknown error occurred');
+              setErrorMessage('Submission failed. ' + (error.message || 'Unknown error occurred.'));
+          }
+      });
+  };
 
-    if (uploadedFiles) {
-        reader.readAsText(uploadedFiles); // Read the uploaded file as text
-    } else {
-        setErrorMessage('No file uploaded.');
-    }
+  if (uploadedFiles) {
+      reader.readAsText(uploadedFiles); // Read the uploaded file as text
+  } else {
+      setErrorMessage('No file uploaded.');
+  }
 };
 
   return (
@@ -130,7 +118,7 @@ export default function Home() {
       <Info/>
 
       {/* Main Content Area */}
-      <main className="flex-grow p-5">
+      <main className="flex-grow p-5 bg-gray-100">
         {/* Dropdown for solver models */}
         <div className="flex justify-center mb-5">
           <label htmlFor="machineModel" className="font-semibold mt-2 text-black">Select Solver Model: </label>
@@ -147,7 +135,7 @@ export default function Home() {
         </div>
 
         <div className="flex justify-center mb-5">
-          <label htmlFor="submissionName" className="font-semibold mt-2 text-white">Submission Name: </label>
+          <label htmlFor="submissionName" className="font-semibold mt-2 text-black">Submission Name: </label>
           <input
             type="text"
             id="submissionName"
@@ -161,13 +149,14 @@ export default function Home() {
         {/* Metadata and Input Data Windows */}
         <div className="flex justify-center mb-10">
         {/* Input Data Window */}
-          <div className="w-3/4 p-6 border border-gray-300 shadow-lg bg-white h-96 overflow-y-auto">
+          <div className="w-1/3 p-6 border border-gray-300 shadow-lg bg-white h-96 overflow-y-auto">
             <h2 className="text-2xl font-semibold mb-4 text-black">Input Data</h2>
               <div>
-                <p>
+                <p className='text-black'>
                   The input should be a JSON file. It should contain an array with the
                   coordinates (latitude and longitude) of 20 or 200 or 1000 locations as
-                  float numbers.
+                  float numbers. Also it should contain the following:
+                  number of vehicles (num_vehicles), depot, and max_distance, all as integers.
                 </p>
                 <div className="flex justify-left">
                 </div>

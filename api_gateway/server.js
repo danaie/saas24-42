@@ -95,25 +95,26 @@ app.post('/api/submitProblem', async (req, res) => {
       },
     });
 
-    res.json(response.data); // Forward the successful response back to the frontend
+    // Forward the successful response back to the frontend
+    res.json(response.data); 
   } catch (error) {
-    // If the error has a response, forward the status and message from the backend
+    // Pass through the error response from the microservice directly
     if (error.response) {
-      const status = error.response.status; // Get the status code from the microservice
-      const message = error.response.data || 'An error occurred';
+      // Log the error for debugging purposes
+      console.error(`Error ${error.response.status}:`, error.response.data);
 
-      console.error(`Error ${status}:`, message);
-      if (status === 406) {
-        return res.status(406).json({ message: 'Not enough credits' }); // Send 406 back to client
-      }
-      res.status(status).json({ message });
+      // Forward the exact status and message back to the client
+      return res.status(error.response.status).json({
+        message: error.response.data,
+      });
     } else {
       // If there's no response (e.g., network error), send a generic 500 error
       console.error('Error in problem submission:', error.message);
-      res.status(500).json({ message: 'Failed to submit problem: ' + error.message });
+      return res.status(500).json({ message: 'Failed to submit problem: ' + error.message });
     }
   }
 });
+
 
 app.get('/api/user_locked/:user_id', async (req, res) => {
   try {
@@ -226,6 +227,7 @@ app.post('/api/unlock_submission', async (req, res) => {
     }
   }
 });
+
 
 // Fetch all finished submissions for a user
 app.get('/api/get_finished/:user_id', async (req, res) => {
