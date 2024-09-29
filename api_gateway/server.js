@@ -95,10 +95,23 @@ app.post('/api/submitProblem', async (req, res) => {
       },
     });
 
-    res.json(response.data);
+    res.json(response.data); // Forward the successful response back to the frontend
   } catch (error) {
-    console.error('Error in problem submission:', error.message);
-    res.status(500).json({ message: 'Failed to submit problem: ' + error.message });
+    // If the error has a response, forward the status and message from the backend
+    if (error.response) {
+      const status = error.response.status; // Get the status code from the microservice
+      const message = error.response.data || 'An error occurred';
+
+      console.error(`Error ${status}:`, message);
+      if (status === 406) {
+        return res.status(406).json({ message: 'Not enough credits' }); // Send 406 back to client
+      }
+      res.status(status).json({ message });
+    } else {
+      // If there's no response (e.g., network error), send a generic 500 error
+      console.error('Error in problem submission:', error.message);
+      res.status(500).json({ message: 'Failed to submit problem: ' + error.message });
+    }
   }
 });
 
@@ -191,8 +204,26 @@ app.post('/api/unlock_submission', async (req, res) => {
     // Forward the response from the lockedsub microservice
     res.status(response.status).json(response.data);
   } catch (error) {
-    console.error('Error unlocking submission:', error.message);
-    res.status(500).json({ message: 'Failed to unlock submission: ' + error.message });
+    // Check if the error has a response and handle it accordingly
+    if (error.response) {
+      const status = error.response.status;
+      const message = error.response.data || 'An error occurred';
+
+      // Log the error for debugging
+      console.error(`Error ${status}:`, message);
+
+      // Forward the 406 error specifically
+      if (status === 406) {
+        return res.status(406).json({ message: 'Not enough credits' });
+      }
+
+      // For other errors, forward the error message
+      return res.status(status).json({ message });
+    } else {
+      // If there's no response (e.g., network error), send a generic 500 error
+      console.error('Error unlocking submission:', error.message);
+      return res.status(500).json({ message: 'Failed to unlock submission: ' + error.message });
+    }
   }
 });
 
@@ -235,6 +266,7 @@ app.get('/api/get_finished_admin/admin', async (req, res) => {
 
 // Get analytics for a specific user
 app.get('/api/my_analytics/:user_id', async (req, res) => {
+  console.log("Analytics request received");
   try {
     const { user_id } = req.params;
     console.log({ user_id });
@@ -246,9 +278,17 @@ app.get('/api/my_analytics/:user_id', async (req, res) => {
     res.status(response.status).json(response.data);
   } catch (error) {
     console.error('Error fetching analytics:', error.message);
+
+    if (error.response && error.response.status === 404) {
+      // Handle the 404 error case with a custom message
+      return res.status(404).json({ message: 'No problems have been submitted yet' });
+    }
+
+    // For other errors, respond with a 500 and the error message
     res.status(500).json({ message: 'Failed to fetch analytics: ' + error.message });
   }
 });
+
 
 app.get('/api/analytics_admin/admin', async (req, res) => {
   try {
@@ -259,8 +299,15 @@ app.get('/api/analytics_admin/admin', async (req, res) => {
 
     // Forward the response from the analytics microservice
     res.status(response.status).json(response.data);
-  } catch (error) {
+  }  catch (error) {
     console.error('Error fetching analytics:', error.message);
+
+    if (error.response && error.response.status === 404) {
+      // Handle the 404 error case with a custom message
+      return res.status(404).json({ message: 'No problems have been submitted yet' });
+    }
+
+    // For other errors, respond with a 500 and the error message
     res.status(500).json({ message: 'Failed to fetch analytics: ' + error.message });
   }
 });

@@ -67,7 +67,7 @@ export default function Home() {
   // Confirm button action to update credits
   const handleConfirm = () => {
     //const updatedBalance = currentBalance + newCredits;
-    if (!isNaN(newCredits) && newCredits > 0 && newCredits <= 1000){
+    if (!isNaN(newCredits) && newCredits > 0){
       const userConfirm = confirm(`Are you sure you want to add ${newCredits} credits`)
       if(userConfirm){
         const creditUpdate = newCredits; // This could be positive or negative
@@ -95,7 +95,7 @@ export default function Home() {
             }
           })}}
           else{
-            alert("Invalid input. You should give as input a number between 0 and 1000")
+            alert("Invalid input. You should give as input a number above 0")
           };
   };
 

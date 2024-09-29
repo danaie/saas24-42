@@ -24,19 +24,6 @@ export default function Home() {
   const [errorMessage, setErrorMessage] = useState('');
   
 
-  // Sample data for metadata and input data
-  const metadata = [
-    { id: 1, title: 'Meta Record 1', data: 'Meta Data 1' },
-    { id: 2, title: 'Meta Record 2', data: 'Meta Data 2' },
-    { id: 3, title: 'Meta Record 3', data: 'Meta Data 3' },
-  ];
-
-  const inputData = [
-    { id: 1, title: 'Input Record 1', data: 'Input Data 1' },
-    { id: 2, title: 'Input Record 2', data: 'Input Data 2' },
-    { id: 3, title: 'Input Record 3', data: 'Input Data 3' },
-  ];
-
   const fileInputRef = useRef(null);
 
 
@@ -67,50 +54,74 @@ export default function Home() {
 
   const postProblem = () => {
     if (selectedModel !== 'Model A') {
-      alert('Only Model A works. The others will come soon.');
-      return;
+        alert('Only Model A works. The others will come soon.');
+        return;
     }
-    
+
     const reader = new FileReader();
 
     reader.onload = (event) => {
-      const jsonData = JSON.parse(event.target.result);
+        let jsonData;
+        try {
+            jsonData = JSON.parse(event.target.result);
+        } catch (error) {
+            setErrorMessage('Invalid JSON format in file.');
+            return;
+        }
 
-      // Add required fields
-      jsonData.user_id = userId;
-      jsonData.username = username;
-      jsonData.submission_name = submissionName;
-      jsonData.timestamp = new Date().toISOString(); // Current timestamp
+        // Add required fields
+        jsonData.user_id = userId;
+        jsonData.username = username;
+        jsonData.submission_name = submissionName;
+        jsonData.timestamp = new Date().toISOString(); // Current timestamp
 
-      // Now make the API call
-      axios.post('http://localhost:8042/api/submitProblem', jsonData, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+        // Now make the API call
+        axios.post('http://localhost:8042/api/submitProblem', jsonData, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
         .then((response) => {
-          // Check if response.data exists before accessing it
-          if (response && response.data) {
-            console.log('File uploaded successfully:', response.data);
-            setSuccessMessage('Submission successful!'); // Set success message
-            setTimeout(() => {
-              window.location.reload(); // Reload page after a short delay
-            }, 2000); // Reload after 2 seconds
-          } else {
-            console.error('Response data is missing or undefined.');
-          }
+            if (response && response.data) {
+                console.log('File uploaded successfully:', response.data);
+                setSuccessMessage('Submission successful!');
+                setErrorMessage(''); // Clear any previous error messages
+                setTimeout(() => {
+                    window.location.reload(); // Reload page after a short delay
+                }, 2000); // Reload after 2 seconds
+            } else {
+                console.error('Response data is missing or undefined.');
+            }
         })
         .catch((error) => {
-          // Handle error with improved checks
-          if (error.response && error.response.data) {
-            console.error('Error uploading file:', error.response.data);
-          } else {
-            console.error('Error uploading file:', error.message || 'Unknown error occurred');
-          }
+            if (error.response) {
+                // Check for specific status codes and set error messages
+                switch (error.response.status) {
+                    case 400:
+                        setErrorMessage('Incorrect file format. Please ensure the submission follows the required structure.');
+                        break;
+                    case 406:
+                        setErrorMessage('Not enough credits. Please add more credits to proceed.');
+                        break;
+                    case 500:
+                        setErrorMessage('Internal server error. Please try again later.');
+                        break;
+                    default:
+                        setErrorMessage('An unexpected error occurred. Please try again.');
+                }
+            } else {
+                console.error('Error uploading file:', error.message || 'Unknown error occurred');
+                setErrorMessage('Submission failed. ' + (error.message || 'Unknown error occurred.'));
+            }
         });
     };
-    reader.readAsText(uploadedFiles); // Read the uploaded file as text
-  };
+
+    if (uploadedFiles) {
+        reader.readAsText(uploadedFiles); // Read the uploaded file as text
+    } else {
+        setErrorMessage('No file uploaded.');
+    }
+};
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -148,53 +159,22 @@ export default function Home() {
 
 
         {/* Metadata and Input Data Windows */}
-        <div className="flex gap-10 mb-10">
-          {/* Metadata Window */}
-          <div className="w-1/2 p-4 border border-gray-300 shadow-lg bg-white h-64 overflow-y-auto">
-            <h2 className="text-xl font-semibold mb-3">Metadata</h2>
-            <table className="w-full table-auto text-black">
-              <thead>
-                <tr>
-                  <th className="text-left">ID</th>
-                  <th className="text-left">Title</th>
-                  <th className="text-left">Data</th>
-                </tr>
-              </thead>
-              <tbody>
-                {metadata.map((record) => (
-                  <tr key={record.id}>
-                    <td>{record.id}</td>
-                    <td>{record.title}</td>
-                    <td>{record.data}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="flex justify-center mb-10">
+        {/* Input Data Window */}
+          <div className="w-3/4 p-6 border border-gray-300 shadow-lg bg-white h-96 overflow-y-auto">
+            <h2 className="text-2xl font-semibold mb-4 text-black">Input Data</h2>
+              <div>
+                <p>
+                  The input should be a JSON file. It should contain an array with the
+                  coordinates (latitude and longitude) of 20 or 200 or 1000 locations as
+                  float numbers.
+                </p>
+                <div className="flex justify-left">
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Input Data Window */}
-          <div className="w-1/2 p-4 border border-gray-300 shadow-lg bg-white h-64 overflow-y-auto">
-            <h2 className="text-xl font-semibold mb-3 text-black">Input Data</h2>
-            <table className="w-full table-auto text-black">
-              <thead>
-                <tr>
-                  <th className="text-left">ID</th>
-                  <th className="text-left">Title</th>
-                  <th className="text-left">Data</th>
-                </tr>
-              </thead>
-              <tbody>
-                {inputData.map((record) => (
-                  <tr key={record.id}>
-                    <td>{record.id}</td>
-                    <td>{record.title}</td>
-                    <td>{record.data}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
 
         {/* Drag and Drop Area */}
 
@@ -246,6 +226,3 @@ export default function Home() {
     </div>
   );
 }
-
-
-

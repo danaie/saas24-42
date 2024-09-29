@@ -46,7 +46,8 @@ export default function Submissions() {
       try {
         const pendResponse  = await axios.get(`http://localhost:8042/api/get_pending_admin/admin`);
         //console.log('Pending Submissions Response:', pendResponse.data.result); // Debugging line
-        setPendingSubmissions(pendResponse.data.result); 
+        const sortedPending = pendResponse.data.result.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        setPendingSubmissions(sortedPending);
       } catch (error) {
         console.error('Error fetching pending submissions:', error);
       }
@@ -54,7 +55,8 @@ export default function Submissions() {
     const fetchLockedSubmissions = async () => {
       try {
         const lockedResponse = await axios.get(`http://localhost:8042/api/locked/admin`);
-        setLockedSubmissions(lockedResponse.data);
+        const sortedLocked = lockedResponse.data.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        setLockedSubmissions(sortedLocked);
       } catch (error) {
         console.error('Error fetching locked submissions:', error);
       }
@@ -63,7 +65,8 @@ export default function Submissions() {
     const fetchFinishedSubmissions = async () => {
       try {
         const finishedResponse  = await axios.get(`http://localhost:8042/api/get_finished_admin/admin`);
-        setFinishedSubmissions(finishedResponse.data.result); 
+        const sortedFinished = finishedResponse.data.result.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        setFinishedSubmissions(sortedFinished);
       } catch (error) {
         console.error('Error fetching finished submissions:', error);
       }

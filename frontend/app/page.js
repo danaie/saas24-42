@@ -83,9 +83,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col justify-between bg-white">
       <main className="flex-grow p-4">
         <div className="flex justify-center mb-4">
-          <div className="w-3/4 bg-blue-300 h-64 flex items-center justify-center text-white">
-            <span>Photo Area</span>
-          </div>
+            <img src="/final_logo.png" alt="Logo image" className="mt-4" style={{ width: '50%', height: 'auto' }}/>
         </div>
 
         <div className="flex justify-center mt-20">

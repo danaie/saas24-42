@@ -21,13 +21,20 @@ export default function ProfilePage({ params }) {
             return;
           }
             try {
-              console.log({ userId, username });
+                console.log({ userId, username });
+              console.log(`http://localhost:8042/api/my_analytics/${userId}`);
                 const response = await axios.get(`http://localhost:8042/api/my_analytics/${userId}`); // Use API Gateway endpoint
                 setAnalytics(response.data); // Set the fetched analytics data
                 setLoading(false);           // Set loading to false once the data is fetched
             } catch (err) {
+              if (err.response && err.response.status === 404) {
+                // Handle the 404 error case with a custom message
+                setError('No submissions have been made yet');
+              }
+              else{
                 setError('Failed to fetch data');  // Set an error message
-                setLoading(false);                 // Stop loading even on error
+              }
+              setLoading(false);                 // Stop loading even on error
             }
         };
 

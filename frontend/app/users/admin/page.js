@@ -35,8 +35,14 @@ export default function ProfilePage({ params }) {
                 setAnalytics(response.data); // Set the fetched analytics data
                 setLoading(false);           // Set loading to false once the data is fetched
             } catch (err) {
+              if (err.response && err.response.status === 404) {
+                // Handle the 404 error case with a custom message
+                setError('No submissions have been made yet');
+              }
+              else{
                 setError('Failed to fetch data');  // Set an error message
-                setLoading(false);                 // Stop loading even on error
+              }
+              setLoading(false);
             }
         };
 

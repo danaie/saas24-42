@@ -19,6 +19,7 @@ export default function Submissions() {
   const [lockedSubmissions, setLockedSubmissions] = useState([]);
   const [pendingSubmissions, setPendingSubmissions] = useState([]);
   const [finishedSubmissions, setFinishedSubmissions] = useState([]);
+  const [unlockError, setUnlockError] = useState('');
   const [loading, setLoading] = useState(true); // Loading state
 
   // Fetch locked submissions and pending submissions when component loads
@@ -33,7 +34,8 @@ export default function Submissions() {
 
       try {
         const response = await axios.get(`http://localhost:8042/api/user_locked/${userId}`);
-        setLockedSubmissions(response.data);
+        const sortedLocked = response.data.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        setLockedSubmissions(sortedLocked);
       } catch (error) {
         console.error('Error fetching locked submissions:', error);
       }
@@ -42,7 +44,8 @@ export default function Submissions() {
     const fetchPendingSubmissions = async () => {
       try {
         const response = await axios.get(`http://localhost:8042/api/get_pending/${userId}`);
-        setPendingSubmissions(response.data.result); // Assuming data is in the 'result' array
+        const sortedPending = response.data.result.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        setPendingSubmissions(sortedPending); // Assuming data is in the 'result' array
       } catch (error) {
         console.error('Error fetching pending submissions:', error);
       }
@@ -50,7 +53,8 @@ export default function Submissions() {
     const fetchFinishedSubmissions = async () => {
       try {
         const response = await axios.get(`http://localhost:8042/api/get_finished/${userId}`);
-        setFinishedSubmissions(response.data.result); // Assuming the data is in 'result' array
+        const sortedFinished = response.data.result.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        setFinishedSubmissions(sortedFinished); // Assuming the data is in 'result' array
       } catch (error) {
         console.error('Error fetching finished submissions:', error);
       }
@@ -119,7 +123,7 @@ export default function Submissions() {
   
 
   const UnlockConfirm = (subId, extraCredits) => {
-    const unlock = confirm("Unlocking the results of this process will cost ${extraCredits} credits.\nAre you sure?");
+    const unlock = confirm(`Unlocking the results of this process will cost ${extraCredits} credits.\nAre you sure?`);
     if (unlock) {
       // Call the API Gateway to unlock the submission
       axios.post('http://localhost:8042/api/unlock_submission', {
@@ -131,7 +135,11 @@ export default function Submissions() {
         window.location.reload(); // Reload the page to reflect the unlocked submission
       })
       .catch(error => {
-        console.error('Error unlocking submission:', error.response?.data || error.message);
+        if (error.response && error.response.status === 406) {
+          setUnlockError('Not enough credits to unlock this submission.');
+        } else {
+          console.error('Error unlocking submission:', error.response?.data || error.message);
+        }
       });
     }
   };
@@ -153,6 +161,8 @@ export default function Submissions() {
       {/* Navbar */}
       {role === 'admin' ? <AdminNav /> : <Nav />}
       <Info/>
+      {/* Show unlock error message if it exists */}
+      {unlockError && <div className="bg-red-500 text-white p-2 mb-4">{unlockError}</div>}
 
       {/* Main content */}
       <main className="flex-grow p-5 bg-gray-100">
